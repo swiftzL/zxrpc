@@ -5,10 +5,6 @@ target/
 !**/src/test/**/target/
 
 
-# Ignore everything in this directory
-*
-# Except this file
-!.gitignore
 
 ### STS ###
 .apt_generated
