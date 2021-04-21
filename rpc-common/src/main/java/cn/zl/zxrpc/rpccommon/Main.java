@@ -6,6 +6,7 @@ import cn.zl.zxrpc.rpccommon.tmpspi.Person;
 public class Main {
     public static void main(String[] args) {
         System.out.println("start");
+        System.out.println("git");
         System.out.println(ServiceLoader.getServiceLoader(Person.class).getDefaultService());
     }
 }
