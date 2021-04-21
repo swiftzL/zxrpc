@@ -13,6 +13,7 @@ public class RpcRequest implements Serializable {
 //    private Class<?>[] args;
     private Object[] args;
 
+
     public RpcRequest(Header header, String url, String seq, Object[] args) {
         this.header = header;
         this.url = url;

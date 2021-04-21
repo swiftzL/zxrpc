@@ -2,7 +2,6 @@ package cn.zl.zxrpc.rpccommon.extension;
 
 import com.sun.org.slf4j.internal.Logger;
 import com.sun.org.slf4j.internal.LoggerFactory;
-import com.sun.tools.javac.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
