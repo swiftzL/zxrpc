@@ -94,18 +94,29 @@ public class ServiceLoader<T> {
             //read file
             reader = new BufferedReader(new InputStreamReader(resource.openStream(), StandardCharsets.UTF_8));
                 String line = null;
-                while ((line = reader.readLine()) != null && !(line = line.trim()).contains("#") && line.length() > 0) {
+                while ((line = reader.readLine()) != null) {
+                    if((line = line.trim()).contains("#") || line.length() < 0){
+                        continue;
+                    }
+
+
                     String[] split = line.split("=");
                     if (split.length == 2) {
                         String key = split[0];
                         String valueStr = split[1];
                         Class<?> valueclass = Class.forName(valueStr.trim(), true, classLoader);
                         loadClass(key.trim(), valueclass);
+
                     }
+
+
                 }
+
 
         }catch (Exception e) {
             logger.debug(e.toString());
+
+
         }finally {
             if(reader!=null){
                 try {
@@ -119,7 +130,7 @@ public class ServiceLoader<T> {
 
     //load by class
     private void loadClass(String key, Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Active.class) || type.getAnnotation(SPI.class).value().trim().equals(key)) {
+        if (clazz.getAnnotation(Active.class)!=null || (type.getAnnotation(SPI.class)!=null&&type.getAnnotation(SPI.class).value().trim().equals(key))) {
             this.defaultName = key;
         }
         this.cachaeClasses.put(key, clazz);
