@@ -23,6 +23,15 @@ public interface Configuration {
         return convert(Integer.class,key,defaultValue);
     }
 
+    default Byte getByte(String key){
+        return getByte(key,null);
+    }
+
+    default Byte getByte(String key, Byte defaultValue){
+        return convert(Byte.class,key,defaultValue);
+    }
+
+
     default Boolean getBool(String key,Boolean defaultValue){
         Boolean bool =  convert(Boolean.class,key,defaultValue);
         if(bool==null){

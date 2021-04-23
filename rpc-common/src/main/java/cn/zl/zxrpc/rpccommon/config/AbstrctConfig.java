@@ -16,16 +16,18 @@ public abstract class AbstrctConfig {
             String methodName = method.getName();
             Parameter parameter = method.getAnnotation(Parameter.class);
             String key = null;
-            String value = null;
-            if (methodName.startsWith("get")) {
+
+            if (methodName.startsWith("get")&&method.getParameterTypes().length==0) {
                 String parameterKey = parameter.key();
                 key = StringUtils.isEmpty(parameterKey) ? methodName.substring(3).toLowerCase() : parameterKey;
-                value = (String) method.invoke(this, null);
-                paramters.put(key, value);
+                Object o = method.invoke(this);
+                String value = String.valueOf(o).trim();
+                if(o!=null){
+                    paramters.put(key,value );
+                }
             }
         }
         return paramters;
-
     }
 
 }
