@@ -6,8 +6,5 @@ public class ZxrpcLoadingStrategy implements LoadingStrategy {
         return "META-INF/zxrpc/";
     }
 
-    @Override
-    public int compareTo(Object o) {
-        return 0;
-    }
+
 }

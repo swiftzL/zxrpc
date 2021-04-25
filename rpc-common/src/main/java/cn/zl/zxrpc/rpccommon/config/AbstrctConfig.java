@@ -9,6 +9,7 @@ import java.util.Map;
 
 public abstract class AbstrctConfig {
 
+    //obtain properties by class get methods
     public Map<String, String> getParamters() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> paramters = new HashMap<>();
         Class clazz = this.getClass();

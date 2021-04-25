@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 
 public class KryoCodeC extends SerializerAdapter {
 
+    //todo use pool
    private ThreadLocal<Kryo> kryos;
 
 
@@ -24,7 +25,6 @@ public class KryoCodeC extends SerializerAdapter {
     public <T> T decode(byte[] bytes,Class<T> clazz) {
         Input input = new Input(new ByteBufferInput(bytes));
         T object2 = kryos.get().readObject(input,clazz);
-
         return object2;
     }
 
@@ -32,7 +32,6 @@ public class KryoCodeC extends SerializerAdapter {
     public byte[] encode(Object o) {
         Output output = new Output(new ByteBufferOutput());
         kryos.get().writeObject(output, o);
-
         return output.toBytes();
     }
 

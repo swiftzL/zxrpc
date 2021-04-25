@@ -1,5 +1,6 @@
 package cn.zl.zxrpc.rpccommon.serializer;
 
+import cn.zl.zxrpc.rpccommon.compress.gizp.GzipCompress;
 import cn.zl.zxrpc.rpccommon.serializer.kryo.KryoBuilder;
 
 import java.io.ByteArrayInputStream;
@@ -7,12 +8,14 @@ import java.io.ByteArrayInputStream;
 public class TestKryo {
     public static void main(String[] args) {
 
+        GzipCompress compress = new GzipCompress();
         for(int i=0;i<2;i++){
             new Thread(()->{
-                    RpcSerializer rpcSerializer = KryoBuilder.Builder().register(User.class).register(Cat.class).build();
+                    RpcSerializer rpcSerializer = KryoBuilder.Builder().register(User.class).build();
             User user = new User("zl",18,new Cat("nb"));
             byte[] bytes = rpcSerializer.encode(user);
-            User user1 = rpcSerializer.decode(bytes, User.class);
+            byte[] enbytes = compress.encode(bytes);
+            User user1 = rpcSerializer.decode(compress.decode(enbytes), User.class);
             System.out.println(user1);
 
             User user2 = new User("ljw",12,new Cat("nb"));

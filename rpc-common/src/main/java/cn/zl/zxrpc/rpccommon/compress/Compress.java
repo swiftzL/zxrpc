@@ -7,5 +7,5 @@ import java.util.zip.GZIPInputStream;
 @SPI("gzip")
 public interface Compress {
     byte[] decode(byte[] src);
-    byte[] encode();
+    byte[] encode(byte[] src);
 }

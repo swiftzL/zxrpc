@@ -1,11 +1,11 @@
 package cn.zl.zxrpc.rpccommon.serializer;
 
-public class User<T> {
+public class User {
     private String name;
     private int gae;
-    private T data;
+    private Cat data;
 
-    public User(String name, int gae,T data) {
+    public User(String name, int gae,Cat data) {
         this.name = name;
         this.gae = gae;
         this.data = data;
