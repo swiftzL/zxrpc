@@ -11,7 +11,7 @@ public class TestKryo {
         GzipCompress compress = new GzipCompress();
         for(int i=0;i<2;i++){
             new Thread(()->{
-                    RpcSerializer rpcSerializer = KryoBuilder.Builder().register(User.class).build();
+                    RpcSerializer rpcSerializer = Serializer.getInstance(SerializerType.KRYO).register(User.class).build();
             User user = new User("zl",18,new Cat("nb"));
             byte[] bytes = rpcSerializer.encode(user);
             byte[] enbytes = compress.encode(bytes);

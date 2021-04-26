@@ -40,7 +40,7 @@ public abstract class SerializerAdapter implements RpcSerializer {
     public RpcSerializer register(Class clazz) {
         if (!registerClass.contains(clazz)) {
             registerClass.add(clazz);
-            logger.debug("add class -->",clazz);
+            logger.debug("add class --> "+clazz.getName());
         }
 
         Arrays.stream(clazz.getDeclaredFields()).filter(this::isBasicType).forEach(this::register);
