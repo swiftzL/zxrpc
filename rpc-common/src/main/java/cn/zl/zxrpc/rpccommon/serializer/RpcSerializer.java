@@ -15,5 +15,7 @@ public interface RpcSerializer {
 
     RpcSerializer register(Class clazz);
 
+    RpcSerializer register(Class... classes);
+
 
 }

@@ -9,14 +9,16 @@ public class TestKryo {
     public static void main(String[] args) {
 
         GzipCompress compress = new GzipCompress();
-        for(int i=0;i<2;i++){
+//        for(int i=0;i<2;i++){
             new Thread(()->{
-                    RpcSerializer rpcSerializer = Serializer.getInstance(SerializerType.KRYO).register(User.class).build();
+                Serializer<User> rpcSerializer =  Serializer.getInstance(SerializerType.KRYO,User.class).register(User.class,Cat.class).build();
             User user = new User("zl",18,new Cat("nb"));
             byte[] bytes = rpcSerializer.encode(user);
             byte[] enbytes = compress.encode(bytes);
-            User user1 = rpcSerializer.decode(compress.decode(enbytes), User.class);
+            User user1 = rpcSerializer.decode(compress.decode(enbytes));
             System.out.println(user1);
+            User user3 = rpcSerializer.decode(compress.decode(enbytes));
+            System.out.println(user3);
 
             User user2 = new User("ljw",12,new Cat("nb"));
             byte[] bytes2 = rpcSerializer.encode(user2);
@@ -47,5 +49,5 @@ public class TestKryo {
 
 
 
-    }
+
 }

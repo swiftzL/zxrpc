@@ -46,6 +46,13 @@ public abstract class SerializerAdapter implements RpcSerializer {
         Arrays.stream(clazz.getDeclaredFields()).filter(this::isBasicType).forEach(this::register);
         return this;
     }
+    @Override
+    public  RpcSerializer register(Class... classes){
+        for (Class aClass : classes) {
+            register(aClass);
+        }
+        return this;
+    }
 
     public RpcSerializer register(Field field) {
         Class clazz = field.getType();

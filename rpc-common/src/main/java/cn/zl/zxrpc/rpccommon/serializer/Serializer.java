@@ -3,21 +3,30 @@ package cn.zl.zxrpc.rpccommon.serializer;
 import cn.zl.zxrpc.rpccommon.execption.SerializerTypeNotFound;
 import cn.zl.zxrpc.rpccommon.serializer.kryo.KryoBuilder;
 
-public class Serializer implements RpcSerializer {
+import java.lang.reflect.ParameterizedType;
+
+public class Serializer<R> implements RpcSerializer {
 
     private RpcSerializer delegate;
+    private Class<R> r;
 
-
-    public static RpcSerializer getInstance(SerializerType type){
-        switch (type){
+    public static Serializer getInstance(SerializerType type, Class<?> clazz) {
+        switch (type) {
             case KRYO:
-                return new Serializer(new KryoBuilder());
+                return new Serializer(new KryoBuilder(), clazz);
         }
         throw new SerializerTypeNotFound();
     }
-    public Serializer(RpcSerializer rpcSerializer){
-        this.delegate= rpcSerializer;
+
+    public Serializer(RpcSerializer rpcSerializer, Class<R> clazz) {
+        this.delegate = rpcSerializer;
+        this.r = clazz;
     }
+
+    public Serializer() {
+
+    }
+
 
     @Override
     public byte[] encode(Object o) {
@@ -25,22 +34,32 @@ public class Serializer implements RpcSerializer {
     }
 
     @Override
-    public Object decode(byte[] bytes) {
-        return delegate.encode(bytes);
+    public R decode(byte[] bytes) {
+        return delegate.decode(bytes, r);
     }
 
     @Override
     public <T> T decode(byte[] bytes, Class<T> clazz) {
-        return delegate.decode(bytes,clazz);
+        return delegate.decode(bytes, clazz);
+    }
+
+
+    @Override
+    public Serializer<R> build() {
+        this.delegate = delegate.build();
+        return this;
     }
 
     @Override
-    public RpcSerializer build() {
-        return delegate.build();
+    public Serializer<R> register(Class clazz) {
+        this.delegate = delegate.register(clazz);
+        return this;
     }
 
     @Override
-    public RpcSerializer register(Class clazz) {
-        return delegate.register(clazz);
+    public Serializer<R> register(Class... classes) {
+        this.delegate = this.delegate.register(classes);
+        return this;
     }
+
 }

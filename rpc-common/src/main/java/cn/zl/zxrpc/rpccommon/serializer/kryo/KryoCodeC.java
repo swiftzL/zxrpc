@@ -1,6 +1,7 @@
 package cn.zl.zxrpc.rpccommon.serializer.kryo;
 
 
+import cn.zl.zxrpc.rpccommon.serializer.RpcSerializer;
 import cn.zl.zxrpc.rpccommon.serializer.SerializerAdapter;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
@@ -29,11 +30,20 @@ public class KryoCodeC extends SerializerAdapter {
     }
 
     @Override
+    public Object decode(byte[] bytes) {
+        Input input = new Input(new ByteBufferInput(bytes));
+        Object object = kryos.get().readObject(input,Object.class);
+        return object;
+    }
+
+    @Override
     public byte[] encode(Object o) {
         Output output = new Output(new ByteBufferOutput());
         kryos.get().writeObject(output, o);
         return output.toBytes();
     }
+
+
 
     public static void main(String[] args) {
 
