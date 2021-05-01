@@ -6,7 +6,6 @@ import cn.zl.zxrpc.rpccommon.utils.ReflectUtil;
 import cn.zl.zxrpc.rpccommon.utils.StringUtils;
 import com.sun.org.slf4j.internal.Logger;
 import com.sun.org.slf4j.internal.LoggerFactory;
-import io.netty.channel.EventLoopGroup;
 
 
 import java.io.IOException;

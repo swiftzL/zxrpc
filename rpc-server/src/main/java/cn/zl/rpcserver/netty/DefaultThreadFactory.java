@@ -35,6 +35,7 @@ public class DefaultThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
+        //use netty fastThreadLocalThread
         return new FastThreadLocalThread(r,this.prefix+nextId.incrementAndGet());
     }
 }
