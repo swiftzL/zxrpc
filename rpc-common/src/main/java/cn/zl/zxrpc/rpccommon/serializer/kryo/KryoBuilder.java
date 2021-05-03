@@ -3,9 +3,6 @@ package cn.zl.zxrpc.rpccommon.serializer.kryo;
 import cn.zl.zxrpc.rpccommon.serializer.RpcSerializer;
 import cn.zl.zxrpc.rpccommon.serializer.SerializerAdapter;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.kryo5.util.Pool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +18,7 @@ public class KryoBuilder extends SerializerAdapter {
 //};
 
     // kryo is not thread safe
-    static private   ThreadLocal<Kryo> kryos = null;
+    static private  ThreadLocal<Kryo> kryos = null;
 
     @Override
     public RpcSerializer build() {

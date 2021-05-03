@@ -1,18 +1,16 @@
 package cn.zl.rpcserver.handler;
 
-import cn.zl.rpcserver.handler.codec.HttpMethod;
 import cn.zl.rpcserver.handler.codec.MessageType;
 import io.netty.channel.ChannelHandler;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class HttpProtocolJudge implements ProtocolJudge {
+public class ZxprcProtocolJudge implements ProtocolJudge {
     @Override
     public String getProtocol() {
-        return "http";
+        return "zxrpc";
     }
-
 
     @Override
     public ChannelHandler newChannelHandler() {
@@ -21,15 +19,13 @@ public class HttpProtocolJudge implements ProtocolJudge {
 
     @Override
     public Set<String> getPrefix() {
-        Set<String> prefixes = new HashSet<>();
-        prefixes.add(HttpMethod.GET);
-        prefixes.add(HttpMethod.POST);
-        return prefixes;
-
+        Set<String> s = new HashSet<>();
+        s.add("zxrpc");
+        return s;
     }
 
     @Override
     public MessageType messageType() {
-        return MessageType.HTTP;
+        return MessageType.ZXRPC;
     }
 }

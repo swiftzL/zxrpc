@@ -8,19 +8,18 @@ import java.lang.reflect.ParameterizedType;
 public class Serializer<R> implements RpcSerializer {
 
     private RpcSerializer delegate;
-    private Class<R> r;
-
-    public static Serializer getInstance(SerializerType type, Class<?> clazz) {
+    private Class<R> clazz;
+    public static Serializer getInstance(SerializerType type,Class<?> clazz) {
         switch (type) {
             case KRYO:
-                return new Serializer(new KryoBuilder(), clazz);
+                return new Serializer(new KryoBuilder(),clazz);
         }
         throw new SerializerTypeNotFound();
     }
 
-    public Serializer(RpcSerializer rpcSerializer, Class<R> clazz) {
+    public Serializer(RpcSerializer rpcSerializer,Class<R> clazz) {
         this.delegate = rpcSerializer;
-        this.r = clazz;
+        this.clazz = clazz;
     }
 
     public Serializer() {
@@ -35,7 +34,7 @@ public class Serializer<R> implements RpcSerializer {
 
     @Override
     public R decode(byte[] bytes) {
-        return delegate.decode(bytes, r);
+        return (R) delegate.decode(bytes,this.clazz);
     }
 
     @Override

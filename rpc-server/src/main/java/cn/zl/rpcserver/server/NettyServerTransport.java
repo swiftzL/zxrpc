@@ -13,13 +13,6 @@ public class NettyServerTransport implements ServerTransport {
     private NettyServerHandler nettyServerHandler;
     private boolean enableHttp;
 
-
-
-
-
-
-
-
     public NettyServerTransport(Channel channel){
         this.channel = Preconditions.checkNotNull(channel,"channel is not null");
         this.logId = LogId.getInstance(this.getClass(),this.channel.remoteAddress().toString());

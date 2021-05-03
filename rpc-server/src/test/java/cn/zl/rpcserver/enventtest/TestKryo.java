@@ -1,15 +1,16 @@
-package cn.zl.zxrpc.rpccommon.serializer;
+package cn.zl.rpcserver.enventtest;
+
 
 import cn.zl.zxrpc.rpccommon.compress.gizp.GzipCompress;
-import cn.zl.zxrpc.rpccommon.serializer.kryo.KryoBuilder;
+import cn.zl.zxrpc.rpccommon.serializer.Serializer;
+import cn.zl.zxrpc.rpccommon.serializer.SerializerType;
 
-import java.io.ByteArrayInputStream;
 
 public class TestKryo {
     public static void main(String[] args) {
 
-        GzipCompress compress = new GzipCompress();
 
+        GzipCompress compress = new GzipCompress();
 //        for(int i=0;i<2;i++){
             new Thread(()->{
                 Serializer<User> rpcSerializer =  Serializer.getInstance(SerializerType.KRYO,User.class).register(User.class,Cat.class).build();
