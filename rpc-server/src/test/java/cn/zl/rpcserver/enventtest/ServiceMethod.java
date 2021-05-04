@@ -13,13 +13,15 @@ import java.lang.reflect.Method;
 public class ServiceMethod {
     public static void main(String[] args) throws NoSuchMethodException {
 
-        Service service = new Service();
-        Class clazz = service.getClass();
-        Method method = clazz.getDeclaredMethod("get",String.class);
-        Serializer<RpcResponse> rpcSerializer =  Serializer.getInstance(SerializerType.KRYO, RpcResponse.class).register(User.class,Cat.class,RpcResponse.class).build();
-        RpcServiceMethod<String> responseRpcServiceMethod = new RpcServiceMethod(service,method,rpcSerializer);
-        RpcResponse<String> ff = responseRpcServiceMethod.invoke("ff");
-        System.out.println(ff.getData());
+//        Service service = new Service();
+//        Class clazz = service.getClass();
+//        Method method = clazz.getDeclaredMethod("get",String.class);
+//        Serializer<RpcResponse> rpcSerializer =  Serializer.getInstance(SerializerType.KRYO, RpcResponse.class).register(User.class,Cat.class,RpcResponse.class).build();
+//        RpcServiceMethod<String> responseRpcServiceMethod = new RpcServiceMethod(service,method,rpcSerializer);
+//        RpcResponse<String> ff = responseRpcServiceMethod.invoke("ff");
+//        System.out.println(ff.getData());
+//        Serializer<RpcResponse<String>> serializer = responseRpcServiceMethod.getSerializer();
+//        System.out.println(serializer.decode(responseRpcServiceMethod.getResponseBytes("123")));
 
 
     }

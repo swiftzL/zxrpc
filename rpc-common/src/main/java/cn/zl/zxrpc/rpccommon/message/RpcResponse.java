@@ -10,6 +10,10 @@ public class RpcResponse<T> {
 
     private T data;
 
+    public RpcResponse(){
+
+    }
+
     public RpcResponse(String requestId, Integer code, String message, T data) {
         this.requestId = requestId;
         this.code = code;
@@ -31,5 +35,15 @@ public class RpcResponse<T> {
 
     public T getData() {
         return data;
+    }
+
+    @Override
+    public String toString() {
+        return "RpcResponse{" +
+                "requestId='" + requestId + '\'' +
+                ", code=" + code +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
     }
 }

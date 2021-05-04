@@ -18,6 +18,6 @@ public class NettyServerProvider extends ServerProvider {
 
     @Override
     public ServerBuilder<?> builderForPort(int port) {
-        return null;
+        return NettyServerBuilder.forPort(port);
     }
 }

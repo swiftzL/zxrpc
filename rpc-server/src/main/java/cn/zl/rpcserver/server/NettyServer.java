@@ -2,11 +2,18 @@ package cn.zl.rpcserver.server;
 
 import cn.zl.rpcserver.event.EventBroadCast;
 import cn.zl.rpcserver.event.internalevent.ServerStartedEvent;
+import cn.zl.rpcserver.handler.ProtocolJudge;
+import cn.zl.rpcserver.service.RpcServiceMethod;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class NettyServer implements Server {
@@ -21,6 +28,25 @@ public class NettyServer implements Server {
     private Map<ChannelOption<?>, ?> channelOptionMap;
     private Map<ChannelOption<?>, ?> channelChildOptionMap;
     private EventBroadCast eventBroadCast = EventBroadCast.getInstance();
+    private List<ProtocolJudge> protocolJudges = new LinkedList<>();
+
+    private Map<String, RpcServiceMethod> methodMap = new HashMap<>();
+
+
+    public NettyServer(SocketAddress socketAddress, EventLoopGroup boosEventLoopGroup, EventLoopGroup workerEventLoopGroup,
+                       ChannelFactory<? extends ServerChannel> channelFactory,
+                       Map<ChannelOption<?>, ?> channelOptionMap, Map<ChannelOption<?>, ?> channelChildOptionMap,
+                       List<ProtocolJudge> protocolJudges, Map<String, RpcServiceMethod> methodMap) {
+        this.socketAddress = socketAddress;
+        this.boosEventLoopGroup = boosEventLoopGroup;
+        this.workerEventLoopGroup = workerEventLoopGroup;
+        this.channelFactory = channelFactory;
+        this.channelOptionMap = channelOptionMap;
+        this.channelChildOptionMap = channelChildOptionMap;
+        this.protocolJudges = protocolJudges;
+        this.methodMap = methodMap;
+    }
+
 
     @Override
     public boolean start() {
@@ -43,8 +69,7 @@ public class NettyServer implements Server {
                 }
             }
             //todo ssl support ?
-            serverBootstrap.handler(new ServerHandlerInitial());
-
+            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap));
 
             //fire server start event
             eventBroadCast.fireEvent(ServerStartedEvent.class);
@@ -67,7 +92,16 @@ public class NettyServer implements Server {
 
     @Override
     public int getPort() {
-        return ((InetSocketAddress)this.socketAddress).getPort();
+        return ((InetSocketAddress) this.socketAddress).getPort();
+    }
+
+    @Override
+    public RpcServiceMethod getServiceMethod(String methodSignature) {
+        return this.methodMap.get(methodSignature);
+    }
+
+    public Map<String, RpcServiceMethod> getMethodMap() {
+        return methodMap;
     }
 
     @Override
@@ -75,13 +109,17 @@ public class NettyServer implements Server {
         return null;
     }
 
-    private static final sun.misc.Unsafe UNSAFE;
+    private static  sun.misc.Unsafe UNSAFE;
     private static long isRunningOffset;
 
     static {
-        UNSAFE = sun.misc.Unsafe.getUnsafe();
+
+//        UNSAFE = sun.misc.Unsafe.getUnsafe();
         Class<?> clazz = NettyServer.class;
         try {
+            Field f = Unsafe.class.getDeclaredField("theUnsafe"); // Internal reference
+            f.setAccessible(true);
+            UNSAFE = (Unsafe) f.get(null);
             isRunningOffset = UNSAFE.objectFieldOffset(clazz.getDeclaredField("isRunning"));
         } catch (Exception e) {
             e.printStackTrace();

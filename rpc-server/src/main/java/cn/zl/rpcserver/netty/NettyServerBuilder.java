@@ -1,11 +1,11 @@
 package cn.zl.rpcserver.netty;
 
 import cn.zl.rpcserver.server.ServerImplBuilder;
+import cn.zl.zxrpc.rpccommon.message.RpcRequest;
+import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import cn.zl.zxrpc.rpccommon.utils.ObjectFactory;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -15,17 +15,23 @@ public class NettyServerBuilder extends ServerBuilderImpl<NettyServerBuilder> {
 
     private static ObjectFactory<EventLoopGroup> DefaultBoosEventLoopGroup;
     private static ObjectFactory<EventLoopGroup> DefaultWorkEventLoopGroup;
-    private static ObjectFactory<ChannelFactory<? extends Channel>> DEFAULT_CHANNEL_FACTORY;
+    private static ObjectFactory<ChannelFactory<? extends ServerChannel>> DEFAULT_CHANNEL_FACTORY;
     private static ObjectFactory<Map<ChannelOption<?>, ?>> DefaultChannelOptions;//channel profile
-    private static ObjectFactory<Map<ChannelOption<?>,?>> DefaultChannelChildOptions;
+    private static ObjectFactory<Map<ChannelOption<?>, ?>> DefaultChannelChildOptions;
     private SocketAddress socketAddress;
     private EventLoopGroup boosEventLoopGroup;
     private EventLoopGroup workerEventLoopGroup;
+    private ServerImplBuilder serverImplBuilder;
+//    private Serializer<RpcResponse> rpcResponseSerializer;
+//    private Serializer<RpcRequest> rpcRequestSerializer;
 
     @Override
     protected ServerBuilder<?> delegate() {
         //create server builder
-        return new ServerImplBuilder(socketAddress,boosEventLoopGroup,workerEventLoopGroup,DEFAULT_CHANNEL_FACTORY.getObject());
+        if (this.serverImplBuilder == null) {
+            this.serverImplBuilder = new ServerImplBuilder(socketAddress, boosEventLoopGroup, workerEventLoopGroup, DEFAULT_CHANNEL_FACTORY.getObject());
+        }
+        return this.serverImplBuilder;
     }
 
     public static NettyServerBuilder forPort(int port) {
@@ -38,7 +44,7 @@ public class NettyServerBuilder extends ServerBuilderImpl<NettyServerBuilder> {
     }
 
     public NettyServerBuilder(SocketAddress socketAddress) {
-        new NettyServerBuilder(socketAddress, DefaultBoosEventLoopGroup.getObject(), DefaultWorkEventLoopGroup.getObject());
+         this(socketAddress, DefaultBoosEventLoopGroup.getObject(), DefaultWorkEventLoopGroup.getObject());
     }
 
     public NettyServerBuilder(SocketAddress socketAddress, EventLoopGroup boos, EventLoopGroup work) {
@@ -65,9 +71,9 @@ public class NettyServerBuilder extends ServerBuilderImpl<NettyServerBuilder> {
 
     static {
         //lazy loading
-        DefaultBoosEventLoopGroup = ObjectFactory.getInstance(() -> Utils.createEventLoopGroup(Utils.EventLoopGroupType.EPOLL));
-        DefaultWorkEventLoopGroup = ObjectFactory.getInstance(() -> Utils.createEventLoopGroup(Utils.EventLoopGroupType.EPOLL));
-        DEFAULT_CHANNEL_FACTORY = ObjectFactory.getInstance(() -> Utils.createChannelFactory(Utils.EventLoopGroupType.EPOLL));
+        DefaultBoosEventLoopGroup = ObjectFactory.getInstance(() -> Utils.createEventLoopGroup(Utils.EventLoopGroupType.NIO));
+        DefaultWorkEventLoopGroup = ObjectFactory.getInstance(() -> Utils.createEventLoopGroup(Utils.EventLoopGroupType.NIO));
+        DEFAULT_CHANNEL_FACTORY = ObjectFactory.getInstance(() -> Utils.createChannelFactory(Utils.EventLoopGroupType.NIO));
 
     }
 

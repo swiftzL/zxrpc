@@ -11,6 +11,14 @@ public class MessageDescribe {
 
     }
 
+    public MessageType getMessageType() {
+        return messageType;
+    }
+
+    public ByteBuf getBody() {
+        return body;
+    }
+
     public MessageDescribe(MessageType messageType, ByteBuf body) {
         this.messageType = messageType;
         this.body = body;

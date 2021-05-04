@@ -22,6 +22,8 @@ public class Serializer<R> implements RpcSerializer {
         this.clazz = clazz;
     }
 
+
+
     public Serializer() {
 
     }

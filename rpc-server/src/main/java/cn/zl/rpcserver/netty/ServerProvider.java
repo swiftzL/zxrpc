@@ -7,9 +7,10 @@ import cn.zl.zxrpc.rpccommon.extension.SPI;
 public abstract class ServerProvider {
 
 
+
     public static ServerProvider serverProvider(){
         //load by spi
-        return null;
+        return new NettyServerProvider();
     }
 
     protected abstract boolean isAvailable();

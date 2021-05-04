@@ -7,6 +7,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 
 import java.util.List;
 
+@Deprecated
 public class RequestHandler extends MessageToMessageDecoder<MessageDescribe> {
 
 

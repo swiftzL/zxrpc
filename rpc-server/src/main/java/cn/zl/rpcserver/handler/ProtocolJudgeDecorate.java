@@ -23,7 +23,7 @@ public class ProtocolJudgeDecorate implements ProtocolJudge {
         this.protocolJudgeMap = new HashMap<>();
     }
 
-    private ProtocolJudgeDecorate register(ProtocolJudge protocolJudge) {
+    public ProtocolJudgeDecorate register(ProtocolJudge protocolJudge) {
         this.protocolJudgeMap.put(protocolJudge.messageType(), protocolJudge);
         return this;
     }

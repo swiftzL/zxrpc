@@ -7,12 +7,15 @@ public class ServiceMethod implements Invoke {
 
     private ServerMethodDefinition serverMethodDefinition;
 
-    public ServiceMethod(){
+    private Class<?> currentClass;
+
+    public ServiceMethod() {
 
     }
 
-    public ServiceMethod(Object o, Method method) {
-        this.serverMethodDefinition = new ServerMethodDefinition(o,method);
+    public ServiceMethod(Object o, Method method, Class<?> clazz) {
+        this.currentClass = clazz;
+        this.serverMethodDefinition = new ServerMethodDefinition(o, method);
     }
 
     @Override
@@ -26,4 +29,18 @@ public class ServiceMethod implements Invoke {
         }
         return result;
     }
+
+    public String methodSignature() {
+        String className = this.currentClass.getName();
+        Method method = this.serverMethodDefinition.getMethodDescriptor().getMethod();
+        String methodName = method.getName();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        StringBuilder parameters = new StringBuilder();
+        for (Class<?> clazz : parameterTypes) {
+            parameters.append(clazz.getName() + "/");
+        }
+        return className + "/" + methodName + "/" + parameters.toString() + "/" +
+                this.serverMethodDefinition.getMethodDescriptor().getReturnType().getName();
+    }
+
 }

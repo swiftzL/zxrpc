@@ -47,7 +47,6 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
         if (decoded != null) {
             out.add(decoded);
         }
-
     }
 
     private Object decode(ChannelHandlerContext ctx, ByteBuf in) {
