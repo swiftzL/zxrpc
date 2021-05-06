@@ -3,6 +3,7 @@ package cn.zl.zxrpc.rpccommon.message;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 public class RpcRequest implements Serializable {
     private static final long serialVersionUID = -6415942297383809224L;
@@ -12,6 +13,10 @@ public class RpcRequest implements Serializable {
     private String seq;
 //    private Class<?>[] args;
     private Object[] args;
+
+    public RpcRequest(){
+
+    }
 
 
     public RpcRequest(Header header, String url, String seq, Object[] args) {
@@ -55,5 +60,15 @@ public class RpcRequest implements Serializable {
 
     public void setArgs(Object[] args) {
         this.args = args;
+    }
+
+    @Override
+    public String toString() {
+        return "RpcRequest{" +
+                "header=" + header +
+                ", url='" + url + '\'' +
+                ", seq='" + seq + '\'' +
+                ", args=" + Arrays.toString(args) +
+                '}';
     }
 }

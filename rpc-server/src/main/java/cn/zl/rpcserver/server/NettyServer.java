@@ -4,6 +4,9 @@ import cn.zl.rpcserver.event.EventBroadCast;
 import cn.zl.rpcserver.event.internalevent.ServerStartedEvent;
 import cn.zl.rpcserver.handler.ProtocolJudge;
 import cn.zl.rpcserver.service.RpcServiceMethod;
+import cn.zl.zxrpc.rpccommon.message.RpcRequest;
+import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import sun.misc.Unsafe;
@@ -32,11 +35,16 @@ public class NettyServer implements Server {
 
     private Map<String, RpcServiceMethod> methodMap = new HashMap<>();
 
+    private Serializer<RpcResponse> rpcResponseSerializer;
+    private Serializer<RpcRequest> rpcRequestSerializer;
+
 
     public NettyServer(SocketAddress socketAddress, EventLoopGroup boosEventLoopGroup, EventLoopGroup workerEventLoopGroup,
                        ChannelFactory<? extends ServerChannel> channelFactory,
                        Map<ChannelOption<?>, ?> channelOptionMap, Map<ChannelOption<?>, ?> channelChildOptionMap,
-                       List<ProtocolJudge> protocolJudges, Map<String, RpcServiceMethod> methodMap) {
+                       List<ProtocolJudge> protocolJudges, Map<String, RpcServiceMethod> methodMap,
+                       Serializer<RpcResponse> rpcResponseSerializer,
+                       Serializer<RpcRequest> rpcRequestSerializer ) {
         this.socketAddress = socketAddress;
         this.boosEventLoopGroup = boosEventLoopGroup;
         this.workerEventLoopGroup = workerEventLoopGroup;
@@ -45,6 +53,8 @@ public class NettyServer implements Server {
         this.channelChildOptionMap = channelChildOptionMap;
         this.protocolJudges = protocolJudges;
         this.methodMap = methodMap;
+        this.rpcRequestSerializer = rpcRequestSerializer;
+        this.rpcResponseSerializer = rpcResponseSerializer;
     }
 
 
@@ -69,10 +79,11 @@ public class NettyServer implements Server {
                 }
             }
             //todo ssl support ?
-            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap));
+            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap,rpcResponseSerializer,rpcRequestSerializer));
 
             //fire server start event
             eventBroadCast.fireEvent(ServerStartedEvent.class);
+            serverBootstrap.bind(this.socketAddress);
         }
         return false;
     }

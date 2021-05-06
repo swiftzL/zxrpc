@@ -18,7 +18,7 @@ public class Serializer<R> implements RpcSerializer {
     }
 
     public Serializer(RpcSerializer rpcSerializer,Class<R> clazz) {
-        this.delegate = rpcSerializer;
+        this.delegate = rpcSerializer.register(clazz).build();
         this.clazz = clazz;
     }
 

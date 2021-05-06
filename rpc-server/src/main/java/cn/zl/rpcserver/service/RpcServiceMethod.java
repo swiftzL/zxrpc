@@ -21,20 +21,20 @@ public class RpcServiceMethod<T> extends ServiceMethod {
     }
 
 
-    public RpcResponse<T> invoke(Object... args) {
+    public RpcResponse<T> invoke(Object... args) throws Exception {
         Object object = super.invoke(args);
         return new RpcResponse("", 12, "", (T) object);
     }
 
-    public byte[] getResponseBytes(Object... args) {
+    public byte[] getResponseBytes(Object... args) throws Exception {
         return this.serializer.encode(invoke(args));
     }
 
-    public byte[] getResponseBytes(RpcRequest rpcRequest) {
+    public byte[] getResponseBytes(RpcRequest rpcRequest) throws Exception {
         return this.serializer.encode(invoke(rpcRequest.getArgs()));
     }
 
-    public byte[] getResponseBytes(byte[] rpcRequestBytes) {
+    public byte[] getResponseBytes(byte[] rpcRequestBytes) throws Exception {
         RpcRequest rpcRequest = this.rpcRequestSerializer.decode(rpcRequestBytes);
         return getResponseBytes(rpcRequest);
     }

@@ -19,13 +19,17 @@ public class ServiceMethod implements Invoke {
     }
 
     @Override
-    public Object invoke(Object... objects) {
+    public Object invoke(Object... objects) throws Exception {
         Object o = this.serverMethodDefinition.getMethodDescriptor().getObject();
-        Object result = null;
+        Object result;
+
         try {
             result = serverMethodDefinition.getMethodDescriptor().getMethod().invoke(o, objects);
-        } catch (Exception e) {
-            return null;
+        } catch (IllegalAccessException e) {
+            result = null;
+        } catch (InvocationTargetException e) {
+            throw (Exception)e.getTargetException();
+//            result = null;
         }
         return result;
     }

@@ -107,6 +107,6 @@ public class ServerImplBuilder extends ServerBuilder {
     @Override
     public Server build() {
         return new NettyServer(socketAddress, boosEventLoopGroup, workerEventLoopGroup,
-                channelFactory, null, null, protocolJudges, methodMap);
+                channelFactory, null, null, protocolJudges, methodMap,rpcResponseSerializer,rpcRequestSerializer);
     }
 }

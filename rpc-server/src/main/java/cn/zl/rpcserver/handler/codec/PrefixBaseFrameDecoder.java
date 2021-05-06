@@ -15,7 +15,7 @@ import java.util.Set;
 //prefix is get post zxprc
 public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
 
-//    private Set<String> prefixes;
+    //    private Set<String> prefixes;
     private Set<ByteBuf> prefixByteBufSets;
     private Map<MessageType, Set<ByteBuf>> protocolToByteBufMap;
     //    private String end = "\r\n";//compatible http protocol
@@ -23,22 +23,22 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
     private boolean discardingTooLongFrame;
     private int maxLength = 655535;
 
-    public PrefixBaseFrameDecoder(){
+    public PrefixBaseFrameDecoder() {
 
     }
 
     public PrefixBaseFrameDecoder(ProtocolJudgeDecorate protocolJudgeDecorate,
                                   boolean discardingTooLongFrame,
                                   int maxLength,
-                                  String delimiterStr){
-        this.protocolToByteBufMap=protocolJudgeDecorate.getProtocolToByteBuf();
-        this.delimiter = Unpooled.copiedBuffer(delimiterStr,Charset.defaultCharset());
+                                  String delimiterStr) {
+        this.protocolToByteBufMap = protocolJudgeDecorate.getProtocolToByteBuf();
+        this.delimiter = Unpooled.copiedBuffer(delimiterStr, Charset.defaultCharset());
         this.maxLength = maxLength;
-        this.discardingTooLongFrame=discardingTooLongFrame;
+        this.discardingTooLongFrame = discardingTooLongFrame;
     }
 
-    public PrefixBaseFrameDecoder(ProtocolJudgeDecorate protocolJudgeDecorate){
-        new PrefixBaseFrameDecoder(protocolJudgeDecorate,true,65535,"\r\n\r\n");
+    public PrefixBaseFrameDecoder(ProtocolJudgeDecorate protocolJudgeDecorate) {
+        this(protocolJudgeDecorate, true, 65535, "\r\n\r\n");
     }
 
     @Override
@@ -51,15 +51,17 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
 
     private Object decode(ChannelHandlerContext ctx, ByteBuf in) {
 
+        System.out.println(ByteBufUtil.hexDump(in));
+
         //get prefix index
         PrefixAndIndex prefixIndex = prefixIndexOf(in);
         if (prefixIndex.index == -1) {
             return null;
         }
         //discover
-        if (prefixIndex.index != 0) {
-            in.skipBytes(prefixIndex.index);
-        }
+//        if (prefixIndex.index != 0) {
+//            in.skipBytes(prefixIndex.index);
+//        }
 
         //get end index;
         int endIndex = indexOf(in, delimiter);
@@ -70,10 +72,10 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
         // extract frame
         ByteBuf byteBuf;
         byteBuf = in.readRetainedSlice(endIndex - prefixIndex.index);
-        if (byteBuf.readableBytes() >= maxLength&&discardingTooLongFrame) {
+        if (byteBuf.readableBytes() >= maxLength && discardingTooLongFrame) {
             return null;
         }
-        return new MessageDescribe(prefixIndex.protocolType,byteBuf);
+        return new MessageDescribe(prefixIndex.protocolType, byteBuf);
     }
 
     private PrefixAndIndex prefixIndexOf(ByteBuf in) {
@@ -117,19 +119,19 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
         for (int i = haystack.readerIndex(); i < haystack.writerIndex(); i++) {//遍历
             int haystackIndex = i;
             int needleIndex;
-            for (needleIndex = 0; needleIndex < needle.capacity(); needleIndex++) {
+            for (needleIndex = 0; needleIndex < needle.readableBytes(); needleIndex++) {
                 if (haystack.getByte(haystackIndex) != needle.getByte(needleIndex)) {//如果不相等
                     break;
                 } else {
                     haystackIndex++;
                     //找到最后 并且不相等
                     if (haystackIndex == haystack.writerIndex() &&
-                            needleIndex != needle.capacity() - 1) {
+                            needleIndex != needle.readableBytes() - 1) {
                         return -1;
                     }
                 }
             }
-            if (needleIndex == needle.capacity()) {
+            if (needleIndex == needle.readableBytes()) {
                 // get
                 return i;
             }
