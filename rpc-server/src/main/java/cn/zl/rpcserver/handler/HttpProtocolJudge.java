@@ -1,6 +1,6 @@
 package cn.zl.rpcserver.handler;
 
-import cn.zl.rpcserver.handler.codec.HttpMethod;
+import cn.zl.zxrpc.rpccommon.message.HttpMethod;
 import cn.zl.rpcserver.handler.codec.MessageType;
 import io.netty.channel.ChannelHandler;
 

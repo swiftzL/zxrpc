@@ -5,10 +5,13 @@ import cn.zl.rpcserver.failfast.ExceptionHandlerUtil;
 import cn.zl.rpcserver.intercept.Interceptor;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.zxrpc.rpccommon.execption.FileNotFoundException;
+import cn.zl.zxrpc.rpccommon.message.HttpRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import cn.zl.zxrpc.rpccommon.serializer.SerializerHelper;
+import cn.zl.zxrpc.rpccommon.tmpspi.Cat;
+import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -104,8 +107,14 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
             System.out.println(responseByte.length);
             ctx.write(Unpooled.copiedBuffer(responseByte));
         } else if (msg.getMessageType() == MessageType.HTTP) {
-
-            ctx.close();
+            System.out.println("http");
+            HttpRequest httpRequest = HttpUtils.parse(byteBuf);
+            System.out.println(httpRequest.getMethod());
+            System.out.println(httpRequest);
+            String text = JSON.toJSONString(new Cat("hahha")); //序列化
+            System.out.println(text);
+            ctx.writeAndFlush(HttpUtils.generateHttpResponse(text));
+//            ctx.close();
         }
     }
 
