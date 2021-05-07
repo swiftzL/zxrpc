@@ -39,7 +39,7 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
 
-    private HttpProtocolHandler httpProtocolHandler = new HttpProtocolHandler();//handler http code
+    private HttpProtocolHandler httpProtocolHandler;//handler http code
     private List<Interceptor> interceptors = new LinkedList<>();
 
     private MessageType messageType;
@@ -52,11 +52,13 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
 
     public MixProtocolHandler(Map<String, RpcServiceMethod> urlToInvoke, int maxBytes,
                               Serializer<RpcResponse> rpcResponseSerializer,
-                              Serializer<RpcRequest> rpcRequestSerializer) {
+                              Serializer<RpcRequest> rpcRequestSerializer,
+                              Map<String,RpcServiceMethod> urlToMethodMap) {
         this.urlToInvoke = urlToInvoke;
         this.maxBytes = maxBytes;
         this.rpcRequestSerializer = rpcRequestSerializer;
         this.rpcResponseSerializer = rpcResponseSerializer;
+        this.httpProtocolHandler = new HttpProtocolHandler(urlToMethodMap);
     }
 
     @Override

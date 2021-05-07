@@ -21,18 +21,21 @@ public class ServerHandlerInitial extends ChannelInitializer<Channel> {
     private Map<String, RpcServiceMethod> methodMap;
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
+    private Map<String, RpcServiceMethod> urlToMethodMap;
 
     private int maxBytes = 2048;
 
     public ServerHandlerInitial(List<ProtocolJudge> protocolJudges,
                                 Map<String, RpcServiceMethod> methodMap,
                                 Serializer<RpcResponse> rpcResponseSerializer,
-                                Serializer<RpcRequest> rpcRequestSerializer) {
+                                Serializer<RpcRequest> rpcRequestSerializer,
+                                Map<String, RpcServiceMethod> urlToMethodMap) {
         this.protocolJudgeDecorate = new ProtocolJudgeDecorate();
         this.methodMap = methodMap;
         protocolJudges.stream().forEach(this.protocolJudgeDecorate::register);
         this.rpcRequestSerializer = rpcRequestSerializer;
         this.rpcResponseSerializer = rpcResponseSerializer;
+        this.urlToMethodMap = urlToMethodMap;
     }
 
 
@@ -40,6 +43,6 @@ public class ServerHandlerInitial extends ChannelInitializer<Channel> {
     protected void initChannel(Channel ch) throws Exception {
 
         ch.pipeline().addLast(this.protocolJudgeDecorate.newChannelHandler());
-        ch.pipeline().addLast(new MixProtocolHandler(methodMap, maxBytes,rpcResponseSerializer,rpcRequestSerializer));
+        ch.pipeline().addLast(new MixProtocolHandler(methodMap, maxBytes, rpcResponseSerializer, rpcRequestSerializer,urlToMethodMap));
     }
 }

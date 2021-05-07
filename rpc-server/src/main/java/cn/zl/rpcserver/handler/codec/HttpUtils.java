@@ -78,7 +78,7 @@ public class HttpUtils {
             }
         }
 
-        String result = new String(resultBytes, 0, index);
+        String result = new String(resultBytes, 0, index-1);
 //            byteBuf.skipBytes(1);//skip blank or ?
         return result;
     }

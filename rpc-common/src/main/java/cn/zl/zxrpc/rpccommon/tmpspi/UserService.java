@@ -7,4 +7,7 @@ package cn.zl.zxrpc.rpccommon.tmpspi;
 public interface UserService  {
 
     public User getUser(String name);
+
+    public User getUser(String name,Integer age);
+
 }

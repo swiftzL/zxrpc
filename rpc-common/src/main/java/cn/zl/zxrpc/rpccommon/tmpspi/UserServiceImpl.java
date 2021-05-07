@@ -11,10 +11,11 @@ import com.apple.eawt.AppEvent;
  * @Author: zl
  * @Date: 2021/5/4 8:13 下午
  */
-@Controller("/")
+@Controller("/user")
 public class UserServiceImpl implements UserService {
 
-    @RequestMapping(value = "test",httpMethodType = HttpMethodType.GET)
+
+    @RequestMapping(value = "/get",httpMethodType = HttpMethodType.GET)
     @Override
     public User getUser(@Param("name") String name)  {
 
@@ -25,4 +26,14 @@ public class UserServiceImpl implements UserService {
         }
         return new User(name);
     }
+
+    @RequestMapping(value = "/getuser",httpMethodType = HttpMethodType.GET)
+    @Override
+    public User getUser(@Param("name") String name, @Param("age") Integer age) {
+         User u = new User(name);
+         u.setAge(age);
+         return  u;
+    }
+
+
 }

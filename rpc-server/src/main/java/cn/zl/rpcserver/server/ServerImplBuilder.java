@@ -5,14 +5,19 @@ import cn.zl.rpcserver.handler.ProtocolJudge;
 import cn.zl.rpcserver.netty.ServerBuilder;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.rpcserver.service.ServerMethodDefinition;
+import cn.zl.zxrpc.rpccommon.annotation.Controller;
+import cn.zl.zxrpc.rpccommon.annotation.RequestMapping;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
+import cn.zl.zxrpc.rpccommon.utils.StringUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.function.Supplier;
@@ -30,6 +35,8 @@ public class ServerImplBuilder extends ServerBuilder {
     private List<ProtocolJudge> protocolJudges = new LinkedList<>();
 
     private Map<String, RpcServiceMethod> methodMap = new HashMap<>();
+    private Map<String, RpcServiceMethod> urlToMethodMap = new HashMap<>();
+
 
     public ServerImplBuilder(SocketAddress socketAddress, EventLoopGroup boosEventLoopGroup,
                              EventLoopGroup workerEventLoopGroup, ChannelFactory<? extends ServerChannel> channelFactory) {
@@ -46,14 +53,41 @@ public class ServerImplBuilder extends ServerBuilder {
         return this;
     }
 
+    public ServerBuilder addService(RpcServiceMethod service, String urlPrefix) {
+        if (urlPrefix != null) {
+            Method method = service.getServerMethodDefinition().getMethodDescriptor().getMethod();
+            RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+            if (requestMapping != null) {
+                String urlPostfix = requestMapping.value();
+                urlPostfix = urlPrefix.startsWith("/") ? urlPostfix : "/" + urlPostfix;
+                urlPostfix = urlPrefix.endsWith("/") ? urlPostfix.substring(0, urlPostfix.length() - 1) : urlPostfix;
+                String fullUrl = urlPrefix + urlPostfix;
+                this.urlToMethodMap.put(fullUrl, service);
+            }
+        }
+        addService(service);
+        return this;
+    }
+
     @Override
     public ServerBuilder addService(Class clazz, Object object) {
         if (this.rpcResponseSerializer == null || this.rpcRequestSerializer == null) {
             throw new RuntimeException("the serializer is not null");
         }
+        //http
+        Controller controller = (Controller) clazz.getAnnotation(Controller.class);
+        String urlPrefix = null;
+        if (controller != null) {
+            urlPrefix = controller.value();
+            if (urlPrefix != null && !StringUtils.isEmpty(urlPrefix)) {
+                urlPrefix = urlPrefix.startsWith("/") ? urlPrefix : "/" + urlPrefix;
+            }
+        }
+
         if (object != null) {
+            String finalUrlPrefix = urlPrefix;
             Arrays.stream(clazz.getDeclaredMethods()).forEach(e -> {
-                addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer));
+                addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer), finalUrlPrefix);
             });
         }
         return this;
@@ -107,6 +141,6 @@ public class ServerImplBuilder extends ServerBuilder {
     @Override
     public Server build() {
         return new NettyServer(socketAddress, boosEventLoopGroup, workerEventLoopGroup,
-                channelFactory, null, null, protocolJudges, methodMap,rpcResponseSerializer,rpcRequestSerializer);
+                channelFactory, null, null, protocolJudges, methodMap, rpcResponseSerializer, rpcRequestSerializer, urlToMethodMap);
     }
 }

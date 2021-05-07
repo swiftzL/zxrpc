@@ -37,6 +37,7 @@ public class NettyServer implements Server {
 
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
+    private Map<String, RpcServiceMethod> urlToMethodMap;
 
 
     public NettyServer(SocketAddress socketAddress, EventLoopGroup boosEventLoopGroup, EventLoopGroup workerEventLoopGroup,
@@ -44,7 +45,8 @@ public class NettyServer implements Server {
                        Map<ChannelOption<?>, ?> channelOptionMap, Map<ChannelOption<?>, ?> channelChildOptionMap,
                        List<ProtocolJudge> protocolJudges, Map<String, RpcServiceMethod> methodMap,
                        Serializer<RpcResponse> rpcResponseSerializer,
-                       Serializer<RpcRequest> rpcRequestSerializer ) {
+                       Serializer<RpcRequest> rpcRequestSerializer,
+                       Map<String, RpcServiceMethod> urlToMethodMap) {
         this.socketAddress = socketAddress;
         this.boosEventLoopGroup = boosEventLoopGroup;
         this.workerEventLoopGroup = workerEventLoopGroup;
@@ -55,6 +57,7 @@ public class NettyServer implements Server {
         this.methodMap = methodMap;
         this.rpcRequestSerializer = rpcRequestSerializer;
         this.rpcResponseSerializer = rpcResponseSerializer;
+        this.urlToMethodMap = urlToMethodMap;
     }
 
 
@@ -79,7 +82,7 @@ public class NettyServer implements Server {
                 }
             }
             //todo ssl support ?
-            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap,rpcResponseSerializer,rpcRequestSerializer));
+            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap, rpcResponseSerializer, rpcRequestSerializer,urlToMethodMap));
 
             //fire server start event
             eventBroadCast.fireEvent(ServerStartedEvent.class);
@@ -120,7 +123,7 @@ public class NettyServer implements Server {
         return null;
     }
 
-    private static  sun.misc.Unsafe UNSAFE;
+    private static sun.misc.Unsafe UNSAFE;
     private static long isRunningOffset;
 
     static {
