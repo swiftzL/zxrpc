@@ -25,6 +25,7 @@ public class HttpUtils {
     private static byte[] HttpVersion = "HTTP/1.1".getBytes();
     private static byte[] HttpStatusCode = "200".getBytes();
     private static byte[] HttpStatus = "OK".getBytes();
+    private static byte[] ContentType = "Content-Type: application/json;charset=utf-8".getBytes();
 
     public static HttpRequest parse(ByteBuf byteBuf) {
         //read line
@@ -61,24 +62,25 @@ public class HttpUtils {
 
     public static String parseUrl(ByteBuf byteBuf) {
 
-        int start = 0;
         int questionIndex = 0;
         int index = 0;
+
+        byte[] resultBytes = new byte[100];
         for (int i = byteBuf.readerIndex(); i < byteBuf.readableBytes(); i++) {
-            byte currentByte = byteBuf.getByte(i);
-            index++;
-            if (currentByte == QuestionMark) {//find ? index
-                questionIndex = index - 1;
+            byte currentByte = byteBuf.readByte();
+
+            if (currentByte == 0x2f && byteBuf.getByte(i - 1) == 0x2f) {
+                continue;
+            }
+            resultBytes[index++] = currentByte;
+            if (currentByte == blank || currentByte == QuestionMark) {//find ? index
                 break;
             }
         }
-        if (questionIndex != 0) {
 
-            String result = byteBuf.readCharSequence(questionIndex - start, Charset.defaultCharset()).toString();
-            byteBuf.skipBytes(1);//skip ?
-            return result;
-        }
-        return null;
+        String result = new String(resultBytes, 0, index);
+//            byteBuf.skipBytes(1);//skip blank or ?
+        return result;
     }
 
     public static Map<String, String> parseHeaders(ByteBuf byteBuf) {
@@ -139,6 +141,7 @@ public class HttpUtils {
         return parameters;
     }
 
+    //generate json response
     public static ByteBuf generateHttpResponse(String response) {
         ByteBuf byteBuf = Unpooled.buffer();
         byteBuf.writeBytes(HttpVersion);//Http
@@ -147,8 +150,11 @@ public class HttpUtils {
         byteBuf.writeByte(blank);
         byteBuf.writeBytes(HttpStatus); //Ok
         byteBuf.writeBytes(DELIMITER);
+        byteBuf.writeBytes(ContentType);//utf-8
+        byteBuf.writeBytes(DELIMITER);
         byteBuf.writeBytes(DELIMITER);
         byteBuf.writeBytes(response.getBytes());
+
         return byteBuf;
     }
 

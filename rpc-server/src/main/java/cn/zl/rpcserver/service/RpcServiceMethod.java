@@ -20,6 +20,11 @@ public class RpcServiceMethod<T> extends ServiceMethod {
         this.rpcRequestSerializer = rpcRequestSerializer;
     }
 
+    public Object invokeToObject(Object... args) throws Exception {
+        return super.invoke(args);
+    }
+
+
 
     public RpcResponse<T> invoke(Object... args) throws Exception {
         Object object = super.invoke(args);

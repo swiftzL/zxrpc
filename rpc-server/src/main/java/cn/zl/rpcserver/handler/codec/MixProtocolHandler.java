@@ -6,6 +6,7 @@ import cn.zl.rpcserver.intercept.Interceptor;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.zxrpc.rpccommon.execption.FileNotFoundException;
 import cn.zl.zxrpc.rpccommon.message.HttpRequest;
+import cn.zl.zxrpc.rpccommon.message.JsonResponse;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
@@ -38,10 +39,11 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
 
-    private List<Interceptor> interceptors=new LinkedList<>();
+    private HttpProtocolHandler httpProtocolHandler = new HttpProtocolHandler();//handler http code
+    private List<Interceptor> interceptors = new LinkedList<>();
 
     private MessageType messageType;
-    private Map<MessageType, Map<Class<? extends Exception>, ExceptionHandlerAdapter>> exceptionHandlers=
+    private Map<MessageType, Map<Class<? extends Exception>, ExceptionHandlerAdapter>> exceptionHandlers =
             ExceptionHandlerUtil.getExceptionHandlers();
 
     public MixProtocolHandler() {
@@ -91,7 +93,6 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
                 }
             }
 
-
             //analyze url
 //            byte[] serializeBytesResponse;
             RpcResponse rpcResponse = urlToInvoke.get(rpcRequest.getUrl()).invoke(rpcRequest.getArgs());
@@ -107,14 +108,9 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
             System.out.println(responseByte.length);
             ctx.write(Unpooled.copiedBuffer(responseByte));
         } else if (msg.getMessageType() == MessageType.HTTP) {
-            System.out.println("http");
-            HttpRequest httpRequest = HttpUtils.parse(byteBuf);
-            System.out.println(httpRequest.getMethod());
-            System.out.println(httpRequest);
-            String text = JSON.toJSONString(new Cat("hahha")); //序列化
-            System.out.println(text);
-            ctx.writeAndFlush(HttpUtils.generateHttpResponse(text));
-//            ctx.close();
+
+            this.httpProtocolHandler.handleHttp(ctx, byteBuf);
+
         }
     }
 
@@ -122,6 +118,7 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         System.out.println("flush");
         ctx.flush();
+        ctx.close();
     }
 
     @Override
@@ -131,9 +128,9 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
         System.out.println(cause.getCause().getClass());
         Map<Class<? extends Exception>, ExceptionHandlerAdapter> classExceptionHandlerAdapterMap
                 = this.exceptionHandlers.get(this.messageType);
-        if(classExceptionHandlerAdapterMap!=null){
+        if (classExceptionHandlerAdapterMap != null) {
             ExceptionHandlerAdapter<RpcResponse> exceptionHandlerAdapter = classExceptionHandlerAdapterMap.get(cause.getCause().getClass());
-            RpcResponse rpcResponse = exceptionHandlerAdapter.handlerException((Exception)cause.getCause());
+            RpcResponse rpcResponse = exceptionHandlerAdapter.handlerException((Exception) cause.getCause());
         }
 
 
