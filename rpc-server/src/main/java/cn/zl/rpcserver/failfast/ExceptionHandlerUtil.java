@@ -24,12 +24,23 @@ public class ExceptionHandlerUtil {
         this.exceptionHandlers = new ConcurrentHashMap<>();
     }
 
-    public static Map<MessageType, Map<Class<? extends Exception>, ExceptionHandlerAdapter>> getExceptionHandlers(){
+    public static Map<MessageType, Map<Class<? extends Exception>, ExceptionHandlerAdapter>> getExceptionHandlers() {
         return getInstance().exceptionHandlers;
     }
 
     public static ExceptionHandlerUtil getInstance() {
         return ExceptionHandlersHolder.INSTANCE;
+    }
+
+    static {
+        try {
+            // initial exception handler
+            loadExceptionHandlers(GlobalExceptionHandler.class);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
     }
 
     public static synchronized void loadExceptionHandlers(Class<?> clazz) throws IllegalAccessException, InstantiationException {

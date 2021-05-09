@@ -5,6 +5,7 @@ import cn.zl.rpcserver.failfast.ExceptionHandlerUtil;
 import cn.zl.rpcserver.intercept.Interceptor;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.zxrpc.rpccommon.execption.FileNotFoundException;
+import cn.zl.zxrpc.rpccommon.internal.Constant;
 import cn.zl.zxrpc.rpccommon.message.HttpRequest;
 import cn.zl.zxrpc.rpccommon.message.JsonResponse;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
@@ -42,6 +43,7 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     private HttpProtocolHandler httpProtocolHandler;//handler http code
     private List<Interceptor> interceptors = new LinkedList<>();
 
+
     private MessageType messageType;
     private Map<MessageType, Map<Class<? extends Exception>, ExceptionHandlerAdapter>> exceptionHandlers =
             ExceptionHandlerUtil.getExceptionHandlers();
@@ -53,7 +55,7 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     public MixProtocolHandler(Map<String, RpcServiceMethod> urlToInvoke, int maxBytes,
                               Serializer<RpcResponse> rpcResponseSerializer,
                               Serializer<RpcRequest> rpcRequestSerializer,
-                              Map<String,RpcServiceMethod> urlToMethodMap) {
+                              Map<String, RpcServiceMethod> urlToMethodMap) {
         this.urlToInvoke = urlToInvoke;
         this.maxBytes = maxBytes;
         this.rpcRequestSerializer = rpcRequestSerializer;
@@ -67,7 +69,7 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
         ByteBuf byteBuf = msg.getBody();
         if (msg.getMessageType() == MessageType.ZXRPC) {
             //get url
-            byteBuf.skipBytes(5);
+            byteBuf.skipBytes(5);//zxrpc 5 byte
 //            int urlLen = byteBuf.readInt();
 //            ByteBuf urlByteBuf = byteBuf.readBytes(urlLen);
 //            String url = urlByteBuf.toString(Charset.defaultCharset());
@@ -105,10 +107,8 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
                 e.after(rpcResponse);
             });
 
-
-            byte[] responseByte = this.rpcResponseSerializer.encode(rpcResponse);
-            System.out.println(responseByte.length);
-            ctx.write(Unpooled.copiedBuffer(responseByte));
+            ByteBuf resultByteBuf = getByteBuf(messageType, rpcResponse);
+            ctx.write(resultByteBuf);
         } else if (msg.getMessageType() == MessageType.HTTP) {
 
             this.httpProtocolHandler.handleHttp(ctx, byteBuf);
@@ -120,7 +120,27 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         System.out.println("flush");
         ctx.flush();
-        ctx.close();
+        if (messageType == MessageType.HTTP) {
+            ctx.close();//not support keepalive
+        }
+
+    }
+
+    private ByteBuf getByteBuf(MessageType messageType, Object o) {
+        if (messageType == MessageType.HTTP) {
+            String s = JSON.toJSONString(o);
+            ByteBuf byteBuf = HttpUtils.generateHttpResponse(s);
+            return byteBuf;
+        } else if (messageType == MessageType.ZXRPC) {
+            byte[] encode = this.rpcResponseSerializer.encode(o);
+            int length = encode.length;
+            ByteBuf buffer = Unpooled.buffer();
+            buffer.writeInt(Constant.MAGIC_NUMBER);
+            buffer.writeInt(length);
+            buffer.writeBytes(encode);
+            return buffer;
+        }
+        return null;
     }
 
     @Override
@@ -130,9 +150,24 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
         System.out.println(cause.getCause().getClass());
         Map<Class<? extends Exception>, ExceptionHandlerAdapter> classExceptionHandlerAdapterMap
                 = this.exceptionHandlers.get(this.messageType);
+        Exception exception = (Exception) cause.getCause();
         if (classExceptionHandlerAdapterMap != null) {
             ExceptionHandlerAdapter<RpcResponse> exceptionHandlerAdapter = classExceptionHandlerAdapterMap.get(cause.getCause().getClass());
-            RpcResponse rpcResponse = exceptionHandlerAdapter.handlerException((Exception) cause.getCause());
+            if (exceptionHandlerAdapter == null) {
+                RpcResponse rpcResponse = exceptionHandlerAdapter.handlerException(exception);
+                ctx.write(getByteBuf(messageType, rpcResponse));
+            } else {
+                //use default handler
+                Object o = ExceptionHandlerAdapter.DefaultHandler(messageType, exception);
+                ctx.write(getByteBuf(messageType, o));
+
+            }
+        } else {
+            //use default handler
+            Object o = ExceptionHandlerAdapter.DefaultHandler(messageType, exception);
+            System.out.println(o);
+            ctx.write(getByteBuf(messageType, o));
+
         }
 
 

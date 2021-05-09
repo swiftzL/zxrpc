@@ -21,6 +21,12 @@ public class RpcResponse<T> {
         this.data = data;
     }
 
+    public static RpcResponse fail(String message){
+        //todo rpcContext get
+        return new RpcResponse("id",500,message,null);
+    }
+
+
     public String getRequestId() {
         return requestId;
     }

@@ -27,6 +27,10 @@ public class JsonResponse<T> {
     public static JsonResponse fail(Object data) {
         return new JsonResponse(500, "失败", data);
     }
+    public static JsonResponse fail(String message){
+        return new JsonResponse(500,message,null);
+    }
+
 
 
     public Integer getCode() {

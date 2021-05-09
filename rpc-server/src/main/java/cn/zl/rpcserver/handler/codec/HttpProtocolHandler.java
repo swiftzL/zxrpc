@@ -53,19 +53,14 @@ public class HttpProtocolHandler {
             Class<?> clazz = argsTypes[i];
             args[i]= TypeConvert.convert(value,clazz);//convert type
         }
-
-        System.out.println(parameters);
-
         Object result = serviceMethod.invokeToObject(args);
-
         String text = JSON.toJSONString(JsonResponse.success(result)); //序列化
-        System.out.println(text);
         ctx.write(HttpUtils.generateHttpResponse(text));
 
 
     }
 
-    public ByteBuf urlNotFount() {
+    public static ByteBuf  urlNotFount() {
         return HttpUtils.generateHttpResponse(JSON.toJSONString(
                 new JsonResponse(404, "url is not found", null)));
     }

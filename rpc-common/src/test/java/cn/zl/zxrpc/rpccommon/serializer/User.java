@@ -1,5 +1,8 @@
 package cn.zl.zxrpc.rpccommon.serializer;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class User {
     private String name;
     private int gae;
@@ -28,5 +31,10 @@ public class User {
                 ", gae=" + gae +
                 ", data=" + data +
                 '}';
+    }
+
+    public static void main(String[] args) throws MalformedURLException {
+        URL url = new URL("http","127.0.0.1",8080,"");
+        System.out.println(url);
     }
 }

@@ -51,7 +51,8 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
 
     private Object decode(ChannelHandlerContext ctx, ByteBuf in) {
 
-        System.out.println(ByteBufUtil.hexDump(in));
+        //debug write the bytebuf hex for analyze
+//        System.out.println(ByteBufUtil.prettyHexDump(in));
 
         //get prefix index
         PrefixAndIndex prefixIndex = prefixIndexOf(in);

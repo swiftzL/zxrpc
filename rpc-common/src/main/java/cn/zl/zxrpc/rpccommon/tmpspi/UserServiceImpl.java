@@ -15,24 +15,27 @@ import com.apple.eawt.AppEvent;
 public class UserServiceImpl implements UserService {
 
 
-    @RequestMapping(value = "/get",httpMethodType = HttpMethodType.GET)
+    @RequestMapping(value = "/get", httpMethodType = HttpMethodType.GET)
     @Override
-    public User getUser(@Param("name") String name)  {
+    public User getUser(@Param("name") String name) {
 
         System.out.println("the getUser method executed");
-        if(name.equals("")){
+        if (name.equals("")) {
             System.out.println("exception");
             throw new FileNotFoundException("exception");
         }
         return new User(name);
     }
 
-    @RequestMapping(value = "/getuser",httpMethodType = HttpMethodType.GET)
+    @RequestMapping(value = "/getuser", httpMethodType = HttpMethodType.GET)
     @Override
     public User getUser(@Param("name") String name, @Param("age") Integer age) {
-         User u = new User(name);
-         u.setAge(age);
-         return  u;
+        if (name.equals("zl")) {
+            throw new FileNotFoundException(name);
+        }
+        User u = new User(name);
+        u.setAge(age);
+        return u;
     }
 
 
