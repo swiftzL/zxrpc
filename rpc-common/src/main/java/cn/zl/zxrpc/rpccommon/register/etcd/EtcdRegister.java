@@ -62,7 +62,7 @@ public class EtcdRegister extends AbstractRegistry {
         urls.forEach(e -> {
             if (e.getPort() == 0) {
                 e.setPort(DEFAULT_PORT);
-                e.setHost("http://");//etcd default protocol
+                e.setProtocol("http://");//etcd default protocol
             }
             EtcdClientFactory.addUrl(e.getUrl());
         });
@@ -88,7 +88,7 @@ public class EtcdRegister extends AbstractRegistry {
         }
         //keepalive
         this.globalLeaseId = this.etcdClient.getLeaseClient()
-                .grant( 200)
+                .grant(300)
                 .get(10 * 1000, TimeUnit.MILLISECONDS)
                 .getID();
 
@@ -117,6 +117,7 @@ public class EtcdRegister extends AbstractRegistry {
                 logger.debug("the response is -->" + r.toString());
                 //ignore response
             });
+            releaseClient();
             TimeUnit.SECONDS.sleep(KEEPALIVE_INTERVAL_TIME);//default 100 seconds
         }
 
@@ -137,17 +138,17 @@ public class EtcdRegister extends AbstractRegistry {
                     ByteSequence.from(String.valueOf(globalLeaseId), UTF_8),
                     PutOption.newBuilder().withLeaseId(globalLeaseId).build()).
                     get(DEFAULT_REQUEST_TIMEOUT, TimeUnit.MILLISECONDS);
+            releaseClient();
         }
 
     }
 
     private Client getEtcdClient() {
-        try {
-            clientLock.lock();
-            return this.etcdClient;
-        } finally {
-            clientLock.unlock();
-        }
+        clientLock.lock();
+        return this.etcdClient;
+    }
+    private void releaseClient(){
+        this.clientLock.unlock();
     }
 
     private Client updateEtcdClient() {

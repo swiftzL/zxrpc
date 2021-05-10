@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 public class RpcRequest implements Serializable {
     private static final long serialVersionUID = -6415942297383809224L;
+    private String requestId;
     private Header header;
     //service:method:args
     private String url;
@@ -24,6 +25,15 @@ public class RpcRequest implements Serializable {
         this.url = url;
         this.seq = seq;
         this.args = args;
+    }
+
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public static long getSerialVersionUID() {

@@ -21,6 +21,7 @@ public class EtcdClientFactory {
     static {
         urls = new ArrayList<>();
     }
+
     public static Client getInstance() {
         return client;
     }
@@ -36,7 +37,10 @@ public class EtcdClientFactory {
             client = Client.builder().endpoints(url).build();
         }
 //        client.getLeaseClient().keepAlive()
-        urls.add(url);
+        if (!((ArrayList) urls).contains(url)) {
+            urls.add(url);
+        }
+
     }
 
     public static Client next() {

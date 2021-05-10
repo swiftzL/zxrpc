@@ -6,7 +6,7 @@ public class Environment implements FramworkExt {
 
     private Configuration environmentConfiguration;
     private Configuration systemConfiguration;
-    private Configuration propertiesConfiuration;
+    private Configuration propertiesConfiguration;
 
     private Configuration compositeConfiguration;
 
@@ -14,8 +14,8 @@ public class Environment implements FramworkExt {
     public Environment(){
         this.environmentConfiguration = new EnvironmentConfiguration();
         this.systemConfiguration = new SystemConfiguration();
-        this.propertiesConfiuration = new PropertiesConfiguration();
-        this.compositeConfiguration = new CompositeConfiguration(this.environmentConfiguration,this.systemConfiguration,this.propertiesConfiuration);
+        this.propertiesConfiguration = new PropertiesConfiguration();
+        this.compositeConfiguration = new CompositeConfiguration(this.environmentConfiguration,this.systemConfiguration,this.propertiesConfiguration);
     }
 
     public Configuration getEnvironmentConfiguration() {
@@ -26,8 +26,8 @@ public class Environment implements FramworkExt {
         return systemConfiguration;
     }
 
-    public Configuration getPropertiesConfiuration() {
-        return propertiesConfiuration;
+    public Configuration getPropertiesConfiguration() {
+        return propertiesConfiguration;
     }
 
     public Configuration getCompositeConfiguration() {
