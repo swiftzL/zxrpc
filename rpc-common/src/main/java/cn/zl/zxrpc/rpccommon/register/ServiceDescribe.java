@@ -11,6 +11,8 @@ public class ServiceDescribe {
     private String serviceName;
     private String host;
     private int port;
+    private volatile int delay; //ping 延迟
+    private volatile long lastTime;
 
     public ServiceDescribe(String serviceName, String url) {
         this.serviceName = serviceName;
@@ -51,6 +53,14 @@ public class ServiceDescribe {
 
     public SocketAddress getSocketAddress() {
         return new InetSocketAddress(getHost(), getPort());
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     @Override

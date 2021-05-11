@@ -3,11 +3,13 @@ package cn.zl.rpcclient.client;
 import cn.zl.rpcclient.handler.ClientHandlerInitial;
 import cn.zl.zxrpc.rpccommon.register.ServiceDescribe;
 
+import cn.zl.zxrpc.rpccommon.register.ServiceDiscover;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +26,11 @@ public class NettyClient {
 
     private EventLoopGroup eventLoopGroup;
     private Bootstrap bootstrap;
+    private ServiceDiscover serviceDiscover;
 
-    public NettyClient() {
+    public NettyClient(EventLoopGroup eventExecutors) {
+//        this.eventLoopGroup = new NioEventLoopGroup();//default
+        this.eventLoopGroup = eventExecutors;
         this.bootstrap = new Bootstrap();
         this.bootstrap.group(eventLoopGroup)
                 .option(ChannelOption.TCP_NODELAY, true)
@@ -48,4 +53,11 @@ public class NettyClient {
         return null;
     }
 
+    public ServiceDiscover getServiceDiscover() {
+        return serviceDiscover;
+    }
+
+    public void setServiceDiscover(ServiceDiscover serviceDiscover) {
+        this.serviceDiscover = serviceDiscover;
+    }
 }

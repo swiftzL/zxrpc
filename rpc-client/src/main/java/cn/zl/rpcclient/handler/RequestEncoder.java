@@ -17,8 +17,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * @Date: 2021/5/10 4:11 下午
  */
 public class RequestEncoder extends MessageToByteEncoder<RpcRequest> {
-    private Serializer defaultRequestSerializer = SerializerHelper.getDefaultRequestSerializer();
+    private Serializer serializer;
     private AtomicLong atomicLong = new AtomicLong();
+
+    public RequestEncoder(Serializer serializer){
+        this.serializer = serializer;
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, RpcRequest msg, ByteBuf out) throws Exception {
@@ -26,7 +30,7 @@ public class RequestEncoder extends MessageToByteEncoder<RpcRequest> {
         long next = atomicLong.incrementAndGet();
         msg.setSeq(String.valueOf(next));
         msg.setRequestId(String.valueOf(next));
-        byte[] encode = defaultRequestSerializer.encode(msg);
+        byte[] encode = serializer.encode(msg);
         byteBuf.writeBytes(encode);
         byteBuf.writeCharSequence(Constant.DELIMITER, Constant.UTF_8);
     }

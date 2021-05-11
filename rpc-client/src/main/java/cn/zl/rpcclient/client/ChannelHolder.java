@@ -21,5 +21,8 @@ public class ChannelHolder {
     public static void set(ServiceDescribe serviceDescribe, Channel channel) {
         serviceToChannel.put(serviceDescribe, channel);
     }
+    //thread
+
+
 
 }

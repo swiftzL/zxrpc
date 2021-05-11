@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -31,11 +33,18 @@ public class EtcdServiceDiscover implements ServiceDiscover {
 
     private String servicePath = "/zxrpc/services/";
 
+    private volatile Map<String, List<ServiceDescribe>> servicesCache;
+
+    private volatile Map<String, List<ServiceDescribe>> updateCache;
+
+    //
+
     public static EtcdServiceDiscover getInstance(List<RegisterServer> servers) {
         EtcdServiceDiscover etcdServiceDiscover = new EtcdServiceDiscover();
         etcdServiceDiscover.init(servers);
         return etcdServiceDiscover;
     }
+
 
     public void init(List<RegisterServer> servers) {
         for (RegisterServer registerServer : servers) {
@@ -46,15 +55,27 @@ public class EtcdServiceDiscover implements ServiceDiscover {
             EtcdClientFactory.addUrl(registerServer.getUrl());
         }
         this.client = EtcdClientFactory.getInstance();
+        this.servicesCache = new ConcurrentHashMap<>();
+        this.updateCache = new ConcurrentHashMap<>();
     }
 
     private String toPath(String service) {
-        return servicePath + service+"/";
+        return servicePath + service + "/";
     }
 
 
     @Override
     public List<ServiceDescribe> getService(String serviceName) {
+        List<ServiceDescribe> serviceDescribes = this.servicesCache.get(serviceName);
+        List<ServiceDescribe> serviceDiscoversUpdate = this.updateCache.get(serviceName);
+        if (serviceDescribes != null || serviceDescribes.size() > 0) { //get by updateCache
+            this.servicesCache.put(serviceName, serviceDescribes);
+            this.updateCache.remove(serviceName);
+            return serviceDiscoversUpdate;
+        }
+        if (serviceDescribes != null || serviceDescribes.size() > 0) {
+            return serviceDescribes;
+        }
         List<ServiceDescribe> services = new LinkedList<>();
         String path = toPath(serviceName);
         try {
@@ -62,16 +83,18 @@ public class EtcdServiceDiscover implements ServiceDiscover {
                     GetOption.newBuilder().withPrefix(ByteSequence.from(path, UTF_8)).build())
                     .get(10 * 1000, TimeUnit.MILLISECONDS).getKvs().stream()
                     .parallel().forEach(e -> {
-                String url = e.getKey().toString(UTF_8).replace(path,"");
+                String url = e.getKey().toString(UTF_8).replace(path, "");
                 services.add(new ServiceDescribe(serviceName, url));
 
             });
+            this.servicesCache.put(serviceName, services);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
             logger.debug("service obtain fail the exception is -->" + e.toString());
+            this.client = EtcdClientFactory.next();
             return null;
         }
         return services;
