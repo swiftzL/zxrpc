@@ -2,6 +2,8 @@ package cn.zl.rpcserver.server;
 
 import cn.zl.rpcserver.event.Event;
 import cn.zl.rpcserver.handler.ProtocolJudge;
+import cn.zl.rpcserver.handler.codec.HttpUtils;
+import cn.zl.rpcserver.handler.restful.RequestTree;
 import cn.zl.rpcserver.netty.ServerBuilder;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.rpcserver.service.ServerMethodDefinition;
@@ -36,6 +38,7 @@ public class ServerImplBuilder extends ServerBuilder {
 
     private Map<String, RpcServiceMethod> methodMap = new HashMap<>();
     private Map<String, RpcServiceMethod> urlToMethodMap = new HashMap<>();
+    private RequestTree requestTree = RequestTree.getInstance();
 
 
     public ServerImplBuilder(SocketAddress socketAddress, EventLoopGroup boosEventLoopGroup,
@@ -55,14 +58,36 @@ public class ServerImplBuilder extends ServerBuilder {
 
     public ServerBuilder addService(RpcServiceMethod service, String urlPrefix) {
         if (urlPrefix != null) {
+            if (urlPrefix.endsWith("/")) { //if url prefix is /
+                urlPrefix = "";
+            }
             Method method = service.getServerMethodDefinition().getMethodDescriptor().getMethod();
             RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
             if (requestMapping != null) {
+
                 String urlPostfix = requestMapping.value();
                 urlPostfix = urlPrefix.startsWith("/") ? urlPostfix : "/" + urlPostfix;
                 urlPostfix = urlPrefix.endsWith("/") ? urlPostfix.substring(0, urlPostfix.length() - 1) : urlPostfix;
                 String fullUrl = urlPrefix + urlPostfix;
-                this.urlToMethodMap.put(fullUrl, service);
+                if (fullUrl.indexOf(":") == -1) {
+                    this.urlToMethodMap.put(fullUrl, service);
+                } else {//restful url  /user/:id/:url  0 1
+                    String[] splitUrl = HttpUtils.splitUrl(fullUrl);
+                    StringBuilder actualUrl = new StringBuilder();
+                    int argsNumber = 0;
+                    for (String url : splitUrl) {
+                        if (!url.startsWith(":")) {
+                            actualUrl.append("/" + url);
+                        } else {
+                            argsNumber++;
+                        }
+                    }
+                    if (argsNumber > 0) {
+                        this.requestTree.addRoute(actualUrl.toString(), argsNumber, service);
+                    }
+
+                }
+
             }
         }
         addService(service);
@@ -84,10 +109,10 @@ public class ServerImplBuilder extends ServerBuilder {
             }
         }
 
-        if (object != null) {
-            String finalUrlPrefix = urlPrefix;
+        if (object != null ) {
+            String finalUrlPrefix1 = urlPrefix;
             Arrays.stream(clazz.getDeclaredMethods()).forEach(e -> {
-                addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer), finalUrlPrefix);
+                addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer), finalUrlPrefix1);
             });
         }
         return this;
@@ -140,7 +165,10 @@ public class ServerImplBuilder extends ServerBuilder {
 
     @Override
     public Server build() {
-        return new NettyServer(socketAddress, boosEventLoopGroup, workerEventLoopGroup,
-                channelFactory, null, null, protocolJudges, methodMap, rpcResponseSerializer, rpcRequestSerializer, urlToMethodMap);
+        NettyServer nettyServer = new NettyServer(socketAddress, boosEventLoopGroup, workerEventLoopGroup,
+                channelFactory, null, null, protocolJudges,
+                methodMap, rpcResponseSerializer, rpcRequestSerializer, urlToMethodMap);
+        nettyServer.setRequestTree(requestTree);
+        return nettyServer;
     }
 }

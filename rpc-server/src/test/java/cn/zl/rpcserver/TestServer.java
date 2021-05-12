@@ -37,9 +37,11 @@ public class TestServer {
         System.out.println(server.getPort());
         NettyServer nettyServer = (NettyServer)server;
         RpcServiceMethod serviceMethod = nettyServer.getServiceMethod("cn.zl.rpcserver.enventtest.Service/get/java.lang.String//java.lang.String");
+        System.out.println(serviceMethod);
         System.out.println(nettyServer.getMethodMap());
         RpcResponse test = serviceMethod.invoke("test");
         System.out.println(test);
+
         server.start();
     }
 }

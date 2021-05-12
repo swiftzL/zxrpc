@@ -117,15 +117,15 @@ public class PrefixBaseFrameDecoder extends ByteToMessageDecoder {
 
     //use netty support fix
     private static int indexOf(ByteBuf haystack, ByteBuf needle) {
-        for (int i = haystack.readerIndex(); i < haystack.writerIndex(); i++) {//遍历
+        for (int i = haystack.readerIndex(); i < haystack.writerIndex(); i++) {//arrange the byteBuf
             int haystackIndex = i;
             int needleIndex;
             for (needleIndex = 0; needleIndex < needle.readableBytes(); needleIndex++) {
-                if (haystack.getByte(haystackIndex) != needle.getByte(needleIndex)) {//如果不相等
+                if (haystack.getByte(haystackIndex) != needle.getByte(needleIndex)) {//if not equals
                     break;
                 } else {
                     haystackIndex++;
-                    //找到最后 并且不相等
+                    //find end if not equals
                     if (haystackIndex == haystack.writerIndex() &&
                             needleIndex != needle.readableBytes() - 1) {
                         return -1;

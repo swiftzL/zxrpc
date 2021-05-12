@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class DelayLoadBalancer implements LoadBalancer {
     private static Logger logger = LoggerFactory.getLogger(DelayLoadBalancer.class);
-
+    //latency
     private int maxDelay;
 
     @Override

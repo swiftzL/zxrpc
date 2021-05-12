@@ -12,7 +12,7 @@ public class ServiceDescribe {
     private String host;
     private int port;
     private volatile int delay; //ping 延迟
-    private volatile long lastTime;
+    private volatile long lastTime;//最后使用时间
 
     public ServiceDescribe(String serviceName, String url) {
         this.serviceName = serviceName;

@@ -2,6 +2,7 @@ package cn.zl.rpcserver.handler.codec;
 
 import cn.zl.rpcserver.failfast.ExceptionHandlerAdapter;
 import cn.zl.rpcserver.failfast.ExceptionHandlerUtil;
+import cn.zl.rpcserver.handler.restful.RequestTree;
 import cn.zl.rpcserver.intercept.Interceptor;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.zxrpc.rpccommon.execption.FileNotFoundException;
@@ -45,6 +46,7 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     private List<Interceptor> interceptors = new LinkedList<>();
 
 
+
     private MessageType messageType;
     private Map<MessageType, Map<Class<? extends Exception>, ExceptionHandlerAdapter>> exceptionHandlers =
             ExceptionHandlerUtil.getExceptionHandlers();
@@ -56,12 +58,16 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     public MixProtocolHandler(Map<String, RpcServiceMethod> urlToInvoke, int maxBytes,
                               Serializer<RpcResponse> rpcResponseSerializer,
                               Serializer<RpcRequest> rpcRequestSerializer,
-                              Map<String, RpcServiceMethod> urlToMethodMap) {
+                              Map<String, RpcServiceMethod> urlToMethodMap,
+                              RequestTree requestTree) {
         this.urlToInvoke = urlToInvoke;
         this.maxBytes = maxBytes;
         this.rpcRequestSerializer = rpcRequestSerializer;
         this.rpcResponseSerializer = rpcResponseSerializer;
         this.httpProtocolHandler = new HttpProtocolHandler(urlToMethodMap);
+        this.httpProtocolHandler.setRequestTree(requestTree);//deal with restful
+
+
     }
 
     @Override

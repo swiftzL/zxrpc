@@ -3,6 +3,7 @@ package cn.zl.rpcserver.server;
 import cn.zl.rpcserver.event.EventBroadCast;
 import cn.zl.rpcserver.event.internalevent.ServerStartedEvent;
 import cn.zl.rpcserver.handler.ProtocolJudge;
+import cn.zl.rpcserver.handler.restful.RequestTree;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
@@ -38,6 +39,7 @@ public class NettyServer implements Server {
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
     private Map<String, RpcServiceMethod> urlToMethodMap;
+    private RequestTree requestTree;
 
 
     public NettyServer(SocketAddress socketAddress, EventLoopGroup boosEventLoopGroup, EventLoopGroup workerEventLoopGroup,
@@ -82,7 +84,8 @@ public class NettyServer implements Server {
                 }
             }
             //todo ssl support ?
-            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap, rpcResponseSerializer, rpcRequestSerializer,urlToMethodMap));
+            serverBootstrap.childHandler(new ServerHandlerInitial(protocolJudges, methodMap, rpcResponseSerializer,
+                    rpcRequestSerializer,urlToMethodMap,requestTree));
 
             //fire server start event
             eventBroadCast.fireEvent(ServerStartedEvent.class);
@@ -138,5 +141,9 @@ public class NettyServer implements Server {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setRequestTree(RequestTree requestTree) {
+        this.requestTree = requestTree;
     }
 }

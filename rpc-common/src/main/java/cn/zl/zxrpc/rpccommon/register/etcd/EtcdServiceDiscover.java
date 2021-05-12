@@ -5,7 +5,9 @@ import cn.zl.zxrpc.rpccommon.register.ServiceDescribe;
 import cn.zl.zxrpc.rpccommon.register.ServiceDiscover;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
+import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.watch.WatchEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +59,20 @@ public class EtcdServiceDiscover implements ServiceDiscover {
         this.client = EtcdClientFactory.getInstance();
         this.servicesCache = new ConcurrentHashMap<>();
         this.updateCache = new ConcurrentHashMap<>();
+        ByteSequence path = ByteSequence.from(servicePath, UTF_8);
+        this.client.getWatchClient().watch(path, (response) -> {
+            for (WatchEvent event : response.getEvents()) {
+                WatchEvent.EventType eventType = event.getEventType();
+                if (eventType == WatchEvent.EventType.DELETE || eventType == WatchEvent.EventType.PUT) {
+                    KeyValue keyValue = event.getKeyValue();
+                    System.out.println(keyValue.getKey());
+                }
+            }
+        });
+    }
+
+    public void initWatch() {
+
     }
 
     private String toPath(String service) {

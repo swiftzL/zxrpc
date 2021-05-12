@@ -4,6 +4,7 @@ import cn.zl.rpcserver.handler.ProtocolJudge;
 import cn.zl.rpcserver.handler.ProtocolJudgeDecorate;
 import cn.zl.rpcserver.handler.codec.MixProtocolHandler;
 import cn.zl.rpcserver.handler.codec.PrefixBaseFrameDecoder;
+import cn.zl.rpcserver.handler.restful.RequestTree;
 import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
@@ -22,6 +23,7 @@ public class ServerHandlerInitial extends ChannelInitializer<Channel> {
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
     private Map<String, RpcServiceMethod> urlToMethodMap;
+    private RequestTree requestTree;
 
     private int maxBytes = 2048;
 
@@ -29,13 +31,15 @@ public class ServerHandlerInitial extends ChannelInitializer<Channel> {
                                 Map<String, RpcServiceMethod> methodMap,
                                 Serializer<RpcResponse> rpcResponseSerializer,
                                 Serializer<RpcRequest> rpcRequestSerializer,
-                                Map<String, RpcServiceMethod> urlToMethodMap) {
+                                Map<String, RpcServiceMethod> urlToMethodMap,
+                                RequestTree requestTree) {
         this.protocolJudgeDecorate = new ProtocolJudgeDecorate();
         this.methodMap = methodMap;
         protocolJudges.stream().forEach(this.protocolJudgeDecorate::register);
         this.rpcRequestSerializer = rpcRequestSerializer;
         this.rpcResponseSerializer = rpcResponseSerializer;
         this.urlToMethodMap = urlToMethodMap;
+        this.requestTree = requestTree;
     }
 
 
@@ -43,6 +47,7 @@ public class ServerHandlerInitial extends ChannelInitializer<Channel> {
     protected void initChannel(Channel ch) throws Exception {
 
         ch.pipeline().addLast(this.protocolJudgeDecorate.newChannelHandler());
-        ch.pipeline().addLast(new MixProtocolHandler(methodMap, maxBytes, rpcResponseSerializer, rpcRequestSerializer,urlToMethodMap));
+        ch.pipeline().addLast(new MixProtocolHandler(methodMap, maxBytes, rpcResponseSerializer,
+                rpcRequestSerializer,urlToMethodMap,requestTree));
     }
 }

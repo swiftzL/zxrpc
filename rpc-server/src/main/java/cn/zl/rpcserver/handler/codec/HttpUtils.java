@@ -158,5 +158,14 @@ public class HttpUtils {
         return byteBuf;
     }
 
+    public static String[] splitUrl(String urlPath) {
+        if (urlPath.startsWith("/")) {
+            urlPath = urlPath.substring(1);
+        }
+        if (urlPath.endsWith("/")) {
+            return new String[]{urlPath.substring(0, urlPath.length() - 1)};
+        }
+        return urlPath.split("/");
+    }
 
 }
