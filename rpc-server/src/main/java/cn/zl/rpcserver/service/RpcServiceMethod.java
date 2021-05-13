@@ -13,7 +13,7 @@ public class RpcServiceMethod<T> extends ServiceMethod {
     private Serializer<RpcRequest> rpcRequestSerializer;
 
     public RpcServiceMethod(Class<?> clazz, Object o, Method m, Serializer<RpcResponse<T>> serializer
-            , Serializer<RpcRequest> rpcRequestSerializer) {
+            , Serializer<RpcRequest> rpcRequestSerializer) throws NoSuchMethodException {
         //create rpc service method
         super(o, m,clazz);
         this.serializer = serializer;

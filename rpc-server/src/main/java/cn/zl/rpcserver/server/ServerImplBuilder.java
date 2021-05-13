@@ -17,6 +17,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -25,6 +27,8 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class ServerImplBuilder extends ServerBuilder {
+
+    private Logger logger = LoggerFactory.getLogger(ServerImplBuilder.class);
 
     //server manager
 
@@ -111,8 +115,14 @@ public class ServerImplBuilder extends ServerBuilder {
 
         if (object != null ) {
             String finalUrlPrefix1 = urlPrefix;
+
             Arrays.stream(clazz.getDeclaredMethods()).forEach(e -> {
-                addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer), finalUrlPrefix1);
+
+                try {
+                    addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer), finalUrlPrefix1);
+                } catch (NoSuchMethodException ex) {
+                    logger.debug("add method fail --> method is ",e.getName());
+                }
             });
         }
         return this;

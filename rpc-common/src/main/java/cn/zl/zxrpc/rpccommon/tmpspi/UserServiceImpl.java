@@ -49,9 +49,10 @@ public class UserServiceImpl implements UserService {
         return u;
     }
     @RequestMapping(value = "/user/:id", httpMethodType = HttpMethodType.GET)
-    public User getUserById(@PathParam("id")Integer id){
+    public User getUserById(@PathParam("id")Integer id,@Param("name")String name){
         User u = new User("default");
         u.setAge(id);
+        u.setName(name);
         return u;
     }
 

@@ -60,7 +60,6 @@ public class RequestTree {
             if (node == null) {
                 node = new RequestNode(key);
                 currentNode.addNode(key, node);
-                currentNode = node;
             }
             currentNode = node;
             if (i == len - 1) {
