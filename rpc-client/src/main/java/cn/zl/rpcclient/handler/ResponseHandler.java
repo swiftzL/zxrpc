@@ -28,19 +28,21 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
         //read bytebuf
         ByteBuf byteBuf = (ByteBuf) msg;
 
-        byte magicByte = byteBuf.readByte();
+        int magicByte = byteBuf.readInt();
         if (magicByte == Constant.PONG) {
             //handler keepAlive
             return;
         } else if (magicByte == Constant.MAGIC_NUMBER) {
             int byteLength = byteBuf.readInt();
-            ByteBuf data = byteBuf.readBytes(byteLength);
-            byte[] dataByte = data.array();
+            System.out.println(byteLength);
+            byte[] dataByte = new byte[byteLength];
+            byteBuf.readBytes(dataByte);
             RpcResponse rpcResponse = this.rpcResponseSerializer.decode(dataByte);
             String requestId = rpcResponse.getRequestId();
+            System.out.println(requestId);
             ResponseHolder.completable(requestId, rpcResponse);
-
         }
+        super.channelRead(ctx, msg);
     }
 
     @Override

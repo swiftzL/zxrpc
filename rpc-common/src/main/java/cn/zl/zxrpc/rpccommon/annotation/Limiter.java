@@ -11,9 +11,10 @@ import java.time.Duration;
  * @Date: 2021/5/13 11:40 下午
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Limiter {
     // intervalTime
     int intervalTime();
+
     int count();
 }

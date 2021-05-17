@@ -16,6 +16,7 @@ import cn.zl.zxrpc.rpccommon.serializer.SerializerHelper;
 import cn.zl.zxrpc.rpccommon.tmpspi.Cat;
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,13 +39,13 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     private Map<String, RpcServiceMethod> urlToInvoke;
 
     private int maxBytes;
+    private String currentRequestId;
 
     private Serializer<RpcResponse> rpcResponseSerializer;
     private Serializer<RpcRequest> rpcRequestSerializer;
 
     private HttpProtocolHandler httpProtocolHandler;//handler http code
     private List<Interceptor> interceptors = new LinkedList<>();
-
 
 
     private MessageType messageType;
@@ -90,29 +91,29 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
             }
             byte[] serializeBytes = new byte[readableBytes - 4];
             byteBuf.readBytes(serializeBytes, 0, readableBytes - 4);
-
-
             //get request
 //            Serializer<RpcRequest> defaultRequestSerializer = SerializerHelper.getDefaultRequestSerializer();
             RpcRequest rpcRequest = this.rpcRequestSerializer.decode(serializeBytes);
             System.out.println(rpcRequest);
+            this.currentRequestId = rpcRequest.getRequestId();
 
             //interceptor before
-            for (Interceptor interceptor : interceptors) {
-                if (!interceptor.before(rpcRequest)) {
-                    return;
-                }
-            }
+//            for (Interceptor interceptor : interceptors) {
+//                if (!interceptor.before(rpcRequest)) {
+//                    return;
+//                }
+//            }
 
             //analyze url
 //            byte[] serializeBytesResponse;
             RpcResponse rpcResponse = urlToInvoke.get(rpcRequest.getUrl()).invoke(rpcRequest.getArgs());
-            System.out.println(rpcResponse);
 
+//            rpcResponse.setRequestId(rpcRequest.getRequestId());
+            this.currentRequestId = rpcRequest.getRequestId();
             //interceptor after
-            interceptors.forEach(e -> {
-                e.after(rpcResponse);
-            });
+//            interceptors.forEach(e -> {
+//                e.after(rpcResponse);
+//            });
 
             ByteBuf resultByteBuf = getByteBuf(messageType, rpcResponse);
             ctx.write(resultByteBuf);
@@ -139,6 +140,8 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
             ByteBuf byteBuf = HttpUtils.generateHttpResponse(s);
             return byteBuf;
         } else if (messageType == MessageType.ZXRPC) {
+            ((RpcResponse)o).setRequestId(this.currentRequestId);
+            System.out.println("id is "+this.currentRequestId);
             byte[] encode = this.rpcResponseSerializer.encode(o);
             int length = encode.length;
             ByteBuf buffer = Unpooled.buffer();
@@ -157,17 +160,18 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
         System.out.println(cause.getCause().getClass());
         Map<Class<? extends Exception>, ExceptionHandlerAdapter> classExceptionHandlerAdapterMap
                 = this.exceptionHandlers.get(this.messageType);
+
         Exception exception = (Exception) cause.getCause();
+        System.out.println(exception);
         if (classExceptionHandlerAdapterMap != null) {
             ExceptionHandlerAdapter<RpcResponse> exceptionHandlerAdapter = classExceptionHandlerAdapterMap.get(cause.getCause().getClass());
-            if (exceptionHandlerAdapter == null) {
-                RpcResponse rpcResponse = exceptionHandlerAdapter.handlerException(exception);
+            if (exceptionHandlerAdapter != null) {
+                Object rpcResponse = exceptionHandlerAdapter.handlerException(exception);
                 ctx.write(getByteBuf(messageType, rpcResponse));
             } else {
                 //use default handler
                 Object o = ExceptionHandlerAdapter.DefaultHandler(messageType, exception);
                 ctx.write(getByteBuf(messageType, o));
-
             }
         } else {
             //use default handler

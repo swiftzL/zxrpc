@@ -11,6 +11,7 @@ import cn.zl.zxrpc.rpccommon.annotation.Controller;
 import cn.zl.zxrpc.rpccommon.annotation.RequestMapping;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.register.Register;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import cn.zl.zxrpc.rpccommon.utils.StringUtils;
 import io.netty.channel.Channel;
@@ -40,6 +41,8 @@ public class ServerImplBuilder extends ServerBuilder {
     private Serializer<RpcRequest> rpcRequestSerializer;
     private List<ProtocolJudge> protocolJudges = new LinkedList<>();
 
+    private Register register;
+
     private Map<String, RpcServiceMethod> methodMap = new HashMap<>();
     private Map<String, RpcServiceMethod> urlToMethodMap = new HashMap<>();
     private RequestTree requestTree = RequestTree.getInstance();
@@ -53,10 +56,27 @@ public class ServerImplBuilder extends ServerBuilder {
         this.channelFactory = channelFactory;
     }
 
+    public void setRegister(Register register) {
+        this.register = register;
+    }
+
     @Override
     public ServerBuilder addService(RpcServiceMethod service) {
         //add service method
         this.methodMap.put(service.methodSignature(), service);
+        if (this.register != null) {
+            try {
+                register.doRegister(service.getServiceName());
+            } catch (Exception e) {
+                logger.debug(service.getServiceName() + " register fail");
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public ServerBuilder register(Register register) {
+        this.register = register;
         return this;
     }
 
@@ -113,7 +133,7 @@ public class ServerImplBuilder extends ServerBuilder {
             }
         }
 
-        if (object != null ) {
+        if (object != null) {
             String finalUrlPrefix1 = urlPrefix;
 
             Arrays.stream(clazz.getDeclaredMethods()).forEach(e -> {
@@ -121,7 +141,7 @@ public class ServerImplBuilder extends ServerBuilder {
                 try {
                     addService(new RpcServiceMethod(clazz, object, e, rpcResponseSerializer, rpcRequestSerializer), finalUrlPrefix1);
                 } catch (NoSuchMethodException ex) {
-                    logger.debug("add method fail --> method is ",e.getName());
+                    logger.debug("add method fail --> method is ", e.getName());
                 }
             });
         }

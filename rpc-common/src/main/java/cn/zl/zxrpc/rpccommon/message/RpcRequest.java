@@ -75,7 +75,8 @@ public class RpcRequest implements Serializable {
     @Override
     public String toString() {
         return "RpcRequest{" +
-                "header=" + header +
+                "requestId='" + requestId + '\'' +
+                ", header=" + header +
                 ", url='" + url + '\'' +
                 ", seq='" + seq + '\'' +
                 ", args=" + Arrays.toString(args) +

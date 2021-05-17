@@ -19,8 +19,8 @@ import java.util.concurrent.TimeoutException;
 public class TestRegister {
     public static void main(String[] args) throws Exception {
         List<RegisterServer> registerServers = RegisterServer.newList("http://", "192.168.31.101");
-        Register etcdRegister = new EtcdRegister(registerServers);
-        etcdRegister.doRegister("cn.zl.service");
+//        Register etcdRegister = new EtcdRegister(registerServers);
+//        etcdRegister.doRegister("cn.zl.service");
 
         ServiceDiscover instance = EtcdServiceDiscover.getInstance(registerServers);
         List<ServiceDescribe> services = instance.getService("cn.zl.service");

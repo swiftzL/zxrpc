@@ -21,6 +21,7 @@ public class ResponseHolder {
         CompletableFuture completableFuture = responseMap.remove(requestId);
         if (completableFuture != null) {
             completableFuture.complete(o);
+            remove(requestId);
         } else {
             throw new IllegalArgumentException(requestId + "is not found");
         }
@@ -28,6 +29,10 @@ public class ResponseHolder {
 
     public static void remove(String requestId) {
         responseMap.remove(requestId);
+    }
+
+    public static void put(String requestId, CompletableFuture completableFuture) {
+        responseMap.put(requestId, completableFuture);
     }
 
 

@@ -3,6 +3,7 @@ package cn.zl.rpcserver.netty;
 import cn.zl.rpcserver.server.ServerImplBuilder;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.register.Register;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import cn.zl.zxrpc.rpccommon.utils.ObjectFactory;
 import io.netty.channel.*;
@@ -22,14 +23,16 @@ public class NettyServerBuilder extends ServerBuilderImpl<NettyServerBuilder> {
     private EventLoopGroup boosEventLoopGroup;
     private EventLoopGroup workerEventLoopGroup;
     private ServerImplBuilder serverImplBuilder;
-//    private Serializer<RpcResponse> rpcResponseSerializer;
+    //    private Serializer<RpcResponse> rpcResponseSerializer;
 //    private Serializer<RpcRequest> rpcRequestSerializer;
+//    private Register register;
 
     @Override
     protected ServerBuilder<?> delegate() {
         //create server builder
         if (this.serverImplBuilder == null) {
             this.serverImplBuilder = new ServerImplBuilder(socketAddress, boosEventLoopGroup, workerEventLoopGroup, DEFAULT_CHANNEL_FACTORY.getObject());
+//            this.serverImplBuilder.setRegister(this.register);
         }
         return this.serverImplBuilder;
     }
@@ -44,7 +47,7 @@ public class NettyServerBuilder extends ServerBuilderImpl<NettyServerBuilder> {
     }
 
     public NettyServerBuilder(SocketAddress socketAddress) {
-         this(socketAddress, DefaultBoosEventLoopGroup.getObject(), DefaultWorkEventLoopGroup.getObject());
+        this(socketAddress, DefaultBoosEventLoopGroup.getObject(), DefaultWorkEventLoopGroup.getObject());
     }
 
     public NettyServerBuilder(SocketAddress socketAddress, EventLoopGroup boos, EventLoopGroup work) {

@@ -6,6 +6,7 @@ import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.rpcserver.service.ServerMethodDefinition;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.register.Register;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 
 import java.util.function.Supplier;
@@ -29,6 +30,11 @@ public abstract class ServerBuilder<T extends ServerBuilder> {
 
 
     //intercept
+
+
+    //server register
+
+    public abstract T register(Register register);
 
 
     //ProtocolJudge

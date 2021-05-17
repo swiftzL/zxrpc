@@ -1,10 +1,14 @@
 package cn.zl.zxrpc.rpccommon.message;
 
+import java.io.Serializable;
+
 /**
  * @Author: zl
  * @Date: 2021/5/7 1:49 下午
  */
-public class JsonResponse<T> {
+public class JsonResponse<T> implements Serializable {
+
+    private static final long serialVersionUID = -6415942297383209224L;
 
     private Integer Code;
     private String Message;
@@ -27,10 +31,10 @@ public class JsonResponse<T> {
     public static JsonResponse fail(Object data) {
         return new JsonResponse(500, "失败", data);
     }
-    public static JsonResponse fail(String message){
-        return new JsonResponse(500,message,null);
-    }
 
+    public static JsonResponse fail(String message) {
+        return new JsonResponse(500, message, null);
+    }
 
 
     public Integer getCode() {

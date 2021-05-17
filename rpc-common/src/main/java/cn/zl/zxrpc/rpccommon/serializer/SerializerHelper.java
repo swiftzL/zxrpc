@@ -11,11 +11,16 @@ import cn.zl.zxrpc.rpccommon.serializer.kryo.KryoBuilder;
  */
 public class SerializerHelper {
 
+    private static Serializer<RpcRequest> rpcRequestSerializer = new Serializer(new KryoBuilder(), RpcRequest.class);
+
+
+    private static Serializer<RpcResponse> rpcResponseSerializer = new Serializer(new KryoBuilder(), RpcResponse.class);
+
     public static Serializer getDefaultRequestSerializer() {
-        return new Serializer(new KryoBuilder(), RpcRequest.class);
+        return rpcRequestSerializer;
     }
 
     public static Serializer getDefaultResponseSerializer() {
-        return new Serializer(new KryoBuilder(), RpcResponse.class);
+        return rpcResponseSerializer;
     }
 }

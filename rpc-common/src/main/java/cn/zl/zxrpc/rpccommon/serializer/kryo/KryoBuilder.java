@@ -21,7 +21,7 @@ public class KryoBuilder extends SerializerAdapter {
     static private  ThreadLocal<Kryo> kryos = null;
 
     @Override
-    public RpcSerializer build() {
+    public RpcSerializer  build() {
         if(kryos ==null)
             kryos = new KryoThreadLocal(this);
         return new KryoCodeC(kryos);
@@ -29,6 +29,7 @@ public class KryoBuilder extends SerializerAdapter {
 
     public Kryo getInstance(){
         Kryo kryo = new Kryo();
+//        kryo.setRegistrationRequired(true);
         this.registerClass.stream().forEach(e->kryo.register(e,kryo.getDefaultSerializer(e)));
         return kryo;
     }

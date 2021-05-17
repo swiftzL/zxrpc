@@ -36,8 +36,8 @@ public class ClientBuilder {
     }
 
 
-    public NettyClient build() {
-        NettyClient nettyClient = new NettyClient(this.eventExecutors);
+    public NettyClient build() throws ClassNotFoundException {
+        NettyClient nettyClient = new NettyClient(this.eventExecutors,requestSerializer,responseSerializer);
         nettyClient.setServiceDiscover(this.serviceDiscover);
         return nettyClient;
     }

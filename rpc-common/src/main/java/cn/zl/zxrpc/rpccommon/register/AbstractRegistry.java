@@ -15,7 +15,7 @@ public abstract class AbstractRegistry implements Register {
     protected List<RegisterServer> registerServers;
 
     protected String bindIp;
-    protected Integer bindPort = 8081;
+    protected Integer bindPort = 8080;
 
     protected String toPath(String service) {
         return "/" + ROOT_NODE + "/" + "services/" + service + "/" + getHost();

@@ -26,7 +26,6 @@ public interface RateLimiter {
     static RateLimiter of(String name, RateLimiterConfig rateLimiterConfig) {
         AtomicRateLimiter atomicRateLimiter = new AtomicRateLimiter(name, rateLimiterConfig);
         return atomicRateLimiter;
-
     }
 
 
@@ -41,6 +40,27 @@ public interface RateLimiter {
             }
         };
     }
+
+    static <T> SupplierFunction<T> decorateSupplier(RateLimiter rateLimiter, Supplier<T> supplier) {
+        return decorateCheckedSupplier(rateLimiter, 1, supplier);
+    }
+
+    static <T, R> cn.zl.rpcserver.ratelimiter.Function<T, R> decorateFunction(RateLimiter rateLimiter, int permits, Function<T, R> function) {
+        return (T t) -> {
+            waitForPermission(rateLimiter, permits);
+            try {
+                R result = function.run(t);
+                return result;
+            } catch (Exception e) {
+                throw e;
+            }
+        };
+    }
+    static <T, R> cn.zl.rpcserver.ratelimiter.Function<T, R> decorateFunction(RateLimiter rateLimiter, cn.zl.rpcserver.ratelimiter.Function<T, R> function) {
+
+        return decorateFunction(rateLimiter, 1, function);
+    }
+
 
     boolean acquirePermission(int permits);
 

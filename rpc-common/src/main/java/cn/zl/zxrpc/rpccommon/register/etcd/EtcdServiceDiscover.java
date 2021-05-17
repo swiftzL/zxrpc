@@ -48,14 +48,27 @@ public class EtcdServiceDiscover implements ServiceDiscover {
     }
 
 
+    public EtcdServiceDiscover(){
+        this.servicesCache = new ConcurrentHashMap<>();
+        this.updateCache = new ConcurrentHashMap<>();
+    }
+
+
     public void init(List<RegisterServer> servers) {
         for (RegisterServer registerServer : servers) {
             if (registerServer.getPort() == 0) {
                 registerServer.setPort(DEFAULT_PORT);
-                registerServer.setHost("http://");//etcd default protocol
+                registerServer.setProtocol("http://");//etcd default protocol
             }
             EtcdClientFactory.addUrl(registerServer.getUrl());
         }
+//        servers.forEach(e -> {
+//            if (e.getPort() == 0) {
+//                e.setPort(DEFAULT_PORT);
+//                e.setProtocol("http://");//etcd default protocol
+//            }
+//            EtcdClientFactory.addUrl(e.getUrl());
+//        });
         this.client = EtcdClientFactory.getInstance();
         this.servicesCache = new ConcurrentHashMap<>();
         this.updateCache = new ConcurrentHashMap<>();
@@ -84,12 +97,12 @@ public class EtcdServiceDiscover implements ServiceDiscover {
     public List<ServiceDescribe> getService(String serviceName) {
         List<ServiceDescribe> serviceDescribes = this.servicesCache.get(serviceName);
         List<ServiceDescribe> serviceDiscoversUpdate = this.updateCache.get(serviceName);
-        if (serviceDescribes != null || serviceDescribes.size() > 0) { //get by updateCache
-            this.servicesCache.put(serviceName, serviceDescribes);
+        if (serviceDiscoversUpdate !=null && serviceDiscoversUpdate.size() > 0) { //get by updateCache
+            this.servicesCache.put(serviceName, serviceDiscoversUpdate);
             this.updateCache.remove(serviceName);
             return serviceDiscoversUpdate;
         }
-        if (serviceDescribes != null || serviceDescribes.size() > 0) {
+        if (serviceDescribes != null && serviceDescribes.size() > 0) {
             return serviceDescribes;
         }
         List<ServiceDescribe> services = new LinkedList<>();

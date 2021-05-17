@@ -5,6 +5,7 @@ import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import cn.zl.zxrpc.rpccommon.serializer.SerializerHelper;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -18,20 +19,20 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class RequestEncoder extends MessageToByteEncoder<RpcRequest> {
     private Serializer serializer;
-    private AtomicLong atomicLong = new AtomicLong();
 
-    public RequestEncoder(Serializer serializer){
+    public RequestEncoder(Serializer serializer) {
         this.serializer = serializer;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RpcRequest msg, ByteBuf out) throws Exception {
-        ByteBuf byteBuf = Unpooled.copiedBuffer(Constant.PROTOCOL_TYPE, Charset.defaultCharset());
-        long next = atomicLong.incrementAndGet();
-        msg.setSeq(String.valueOf(next));
-        msg.setRequestId(String.valueOf(next));
+    protected void encode(ChannelHandlerContext ctx, RpcRequest msg, ByteBuf out) {
+        ByteBuf byteBuf = Unpooled.copiedBuffer(Constant.PROTOCOL_TYPE, Constant.UTF_8);
+//        ByteBufUtil.hexDump(byteBuf);
         byte[] encode = serializer.encode(msg);
+
         byteBuf.writeBytes(encode);
-        byteBuf.writeCharSequence(Constant.DELIMITER, Constant.UTF_8);
+        byteBuf.writeCharSequence(Constant.DELIMITER, Constant.UTF_8);// /r/n/r/n
+        ByteBufUtil.hexDump(byteBuf);
+        out.writeBytes(byteBuf);
     }
 }

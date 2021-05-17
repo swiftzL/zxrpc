@@ -6,6 +6,7 @@ import cn.zl.rpcserver.service.RpcServiceMethod;
 import cn.zl.rpcserver.service.ServerMethodDefinition;
 import cn.zl.zxrpc.rpccommon.message.RpcRequest;
 import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.register.Register;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 
 import java.util.function.Supplier;
@@ -51,6 +52,12 @@ public abstract class ServerBuilderImpl<T extends ServerBuilderImpl<T>> extends 
     @Override
     public T addSerializerResponse(Supplier<Serializer<RpcResponse>> rpcResponseSerializerSupplier) {
         delegate().addSerializerResponse(rpcResponseSerializerSupplier);
+        return selfT();
+    }
+
+    @Override
+    public T register(Register register) {
+        delegate().register(register);
         return selfT();
     }
 

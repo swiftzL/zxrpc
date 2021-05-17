@@ -19,6 +19,10 @@ public class ServiceMethod implements Invoke {
         return serverMethodDefinition;
     }
 
+    public String getServiceName(){
+        return interfaceClass.getName();
+    }
+
     public ServiceMethod(Object o, Method method, Class<?> clazz)  {
         this.currentClass = clazz;
         this.serverMethodDefinition = new ServerMethodDefinition(o, method);

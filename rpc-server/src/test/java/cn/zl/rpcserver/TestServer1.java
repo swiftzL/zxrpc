@@ -1,9 +1,7 @@
 package cn.zl.rpcserver;
 
-import cn.zl.rpcserver.enventtest.Service;
 import cn.zl.rpcserver.handler.HttpProtocolJudge;
 import cn.zl.rpcserver.handler.ZxprcProtocolJudge;
-import cn.zl.rpcserver.netty.NettyServerBuilder;
 import cn.zl.rpcserver.netty.ServerBuilder;
 import cn.zl.rpcserver.server.NettyServer;
 import cn.zl.rpcserver.server.Server;
@@ -16,18 +14,15 @@ import cn.zl.zxrpc.rpccommon.register.etcd.EtcdRegister;
 import cn.zl.zxrpc.rpccommon.serializer.Serializer;
 import cn.zl.zxrpc.rpccommon.serializer.SerializerHelper;
 import cn.zl.zxrpc.rpccommon.tmpspi.User;
-import cn.zl.zxrpc.rpccommon.tmpspi.UserService;
 import cn.zl.zxrpc.rpccommon.tmpspi.UserServiceImpl;
 
-import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * @Author: zl
  * @Date: 2021/5/4 2:47 下午
  */
-public class TestServer {
+public class TestServer1 {
 
     static byte[] b = new byte[]{1,1,24,13,1,0,1,102,100,97,-13,1,-127,0};
     public static void main(String[] args)throws Exception {
@@ -52,7 +47,8 @@ public class TestServer {
 
 
         System.out.println("-------");
-
+        RpcResponse decode2 = defaultResponseSerializer.decode(b);
+        System.out.println(decode2);
 
 
         Server server = ServerBuilder.forPort(8080).addSerializerRequest(SerializerHelper::getDefaultRequestSerializer)

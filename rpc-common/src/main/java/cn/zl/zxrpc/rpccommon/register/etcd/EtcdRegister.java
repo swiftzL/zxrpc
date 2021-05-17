@@ -42,7 +42,7 @@ public class EtcdRegister extends AbstractRegistry {
     private volatile long globalLeaseId;
     private int DEFAULT_REQUEST_TIMEOUT = 10 * 1000;
 
-    private int KEEPALIVE_INTERVAL_TIME = 100;
+    private int KEEPALIVE_INTERVAL_TIME = 60*10;
 
     private ReentrantLock clientLock = new ReentrantLock();//use etcdClient shoud hold the lock
 
@@ -88,7 +88,7 @@ public class EtcdRegister extends AbstractRegistry {
         }
         //keepalive
         this.globalLeaseId = this.etcdClient.getLeaseClient()
-                .grant(300)
+                .grant(70*10)
                 .get(10 * 1000, TimeUnit.MILLISECONDS)
                 .getID();
 

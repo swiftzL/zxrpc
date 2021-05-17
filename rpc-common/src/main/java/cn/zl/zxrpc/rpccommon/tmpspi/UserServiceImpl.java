@@ -1,9 +1,6 @@
 package cn.zl.zxrpc.rpccommon.tmpspi;
 
-import cn.zl.zxrpc.rpccommon.annotation.Controller;
-import cn.zl.zxrpc.rpccommon.annotation.Param;
-import cn.zl.zxrpc.rpccommon.annotation.PathParam;
-import cn.zl.zxrpc.rpccommon.annotation.RequestMapping;
+import cn.zl.zxrpc.rpccommon.annotation.*;
 import cn.zl.zxrpc.rpccommon.execption.FileNotFoundException;
 import cn.zl.zxrpc.rpccommon.message.HttpMethodType;
 import com.apple.eawt.AppEvent;
@@ -39,6 +36,7 @@ public class UserServiceImpl implements UserService {
         return u;
     }
 
+
     @RequestMapping(value = "/user/:name/:id", httpMethodType = HttpMethodType.GET)
     public User getUserByRestful(@PathParam("name") String name, @PathParam("id") Integer age) {
         if (name.equals("zl")) {
@@ -48,8 +46,10 @@ public class UserServiceImpl implements UserService {
         u.setAge(age);
         return u;
     }
+
+    @Limiter(intervalTime = 1, count = 2)
     @RequestMapping(value = "/user/:id", httpMethodType = HttpMethodType.GET)
-    public User getUserById(@PathParam("id")Integer id,@Param("name")String name){
+    public User getUserById(@PathParam("id") Integer id, @Param("name") String name) {
         User u = new User("default");
         u.setAge(id);
         u.setName(name);

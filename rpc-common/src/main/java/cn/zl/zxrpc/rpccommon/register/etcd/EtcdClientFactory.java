@@ -37,7 +37,7 @@ public class EtcdClientFactory {
             client = Client.builder().endpoints(url).build();
         }
 //        client.getLeaseClient().keepAlive()
-        if (!((ArrayList) urls).contains(url)) {
+        if (!urls.contains(url)) {
             urls.add(url);
         }
 

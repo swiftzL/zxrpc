@@ -3,8 +3,11 @@ package cn.zl.rpcserver.server;
 import cn.zl.rpcserver.handler.NettyServerHandler;
 import cn.zl.zxrpc.rpccommon.internal.LogId;
 import cn.zl.zxrpc.rpccommon.utils.Preconditions;
+import com.sun.org.glassfish.gmbal.Description;
 import io.netty.channel.Channel;
 
+
+@Deprecated
 public class NettyServerTransport implements ServerTransport {
 
 

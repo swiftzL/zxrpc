@@ -10,27 +10,25 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-@SpringBootApplication
+
 public class TestApplication {
 
     public static void main(String[] args) {
-        RpcRequest rpcRequest = new RpcRequest(null, "cn.zl.zxrpc.rpccommon.tmpspi.UserServiceImpl/getUser/java.lang.String//cn.zl.zxrpc.rpccommon.tmpspi.User", "123", new Object[]{""});
+        RpcRequest rpcRequest = new RpcRequest(null, "cn.zl.zxrpc.rpccommon.tmpspi.UserService/getUser/java.lang.String//cn.zl.zxrpc.rpccommon.tmpspi.User", "123", new Object[]{"fdas"});
         Serializer<RpcRequest> defaultRequestSerializer = SerializerHelper.getDefaultRequestSerializer();
         byte[] encode = defaultRequestSerializer.encode(rpcRequest);
 
 //        System.out.println(encode.length);
 
 //
-//        for (int i = 0; i < encode.length; i++) {
-//            System.out.println(encode[i]);
-//        }
+        for (int i = 0; i < encode.length; i++) {
+            System.out.println(encode[i]);
+        }
 
         //
         System.out.println("-----");
@@ -55,6 +53,7 @@ public class TestApplication {
 
             // Start the client.
             ChannelFuture f = b.connect("127.0.0.1", 8080);
+
 //            ByteBuf byteBuf = Unpooled.copiedBuffer("zxrpc",Charset.defaultCharset());
 
 
@@ -67,6 +66,9 @@ public class TestApplication {
 //            for (int i = 0; i < 20; i++) {
                 ByteBuf byteBuf = Unpooled.copiedBuffer("zxrpc",Charset.defaultCharset());
                 byteBuf.writeBytes(encode);
+//                for(int i=0;i<encode.length;i++){
+//                    System.out.println(encode[i]);
+//                }
                 byteBuf.writeCharSequence("\r\n\r\n", Charset.defaultCharset());
                 f.channel().writeAndFlush(byteBuf);
                 TimeUnit.SECONDS.sleep(1);

@@ -10,4 +10,8 @@ public class HelloService {
         return "hello haha";
 
     }
+
+    public String sayHello(String name){
+        return name;
+    }
 }

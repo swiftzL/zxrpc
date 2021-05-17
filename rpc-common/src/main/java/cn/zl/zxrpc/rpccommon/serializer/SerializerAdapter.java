@@ -1,6 +1,10 @@
 package cn.zl.zxrpc.rpccommon.serializer;
 
 import cn.zl.zxrpc.rpccommon.annotation.CanSerializer;
+import cn.zl.zxrpc.rpccommon.message.Header;
+import cn.zl.zxrpc.rpccommon.message.RpcRequest;
+import cn.zl.zxrpc.rpccommon.message.RpcResponse;
+import cn.zl.zxrpc.rpccommon.tmpspi.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +18,17 @@ import java.util.Set;
 public abstract class SerializerAdapter implements RpcSerializer {
 
     private static Logger logger = LoggerFactory.getLogger(SerializerAdapter.class);
-    protected Set<Class<?>> registerClass = new HashSet<>();
+    protected static Set<Class<?>> registerClass = new HashSet<>();
     public static Set<Class<?>> entityAnnotations = new HashSet<>();
 
     static {
 
-
+//        registerClass.add(RpcResponse.class);
+//
+//        registerClass.add(Header.class);
+//        registerClass.add(Object[].class);
+//        registerClass.add(RpcRequest.class);
+//        registerClass.add(User.class);
     }
 
     @Override
@@ -40,14 +49,15 @@ public abstract class SerializerAdapter implements RpcSerializer {
     public RpcSerializer register(Class clazz) {
         if (!registerClass.contains(clazz)) {
             registerClass.add(clazz);
-            logger.debug("add class --> "+clazz.getName());
+            logger.debug("add class --> " + clazz.getName());
         }
 
         Arrays.stream(clazz.getDeclaredFields()).filter(this::isBasicType).forEach(this::register);
         return this;
     }
+
     @Override
-    public  RpcSerializer register(Class... classes){
+    public RpcSerializer register(Class... classes) {
         for (Class aClass : classes) {
             register(aClass);
         }
@@ -61,7 +71,7 @@ public abstract class SerializerAdapter implements RpcSerializer {
     }
 
     public boolean isBasicType(Field t) {
-        if(t.getType().getAnnotation(CanSerializer.class)!=null){
+        if (t.getType().getAnnotation(CanSerializer.class) != null) {
             return true;
         }
         //annotation judge
