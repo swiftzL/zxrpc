@@ -42,6 +42,7 @@ public class TestClient {
             int finalI = i;
             new Thread(()->{
                 User d = service.getUser("zlz", finalI);
+                System.out.println(d);
             }).start();
         }
 

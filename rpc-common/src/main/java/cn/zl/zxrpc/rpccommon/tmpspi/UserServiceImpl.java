@@ -3,7 +3,6 @@ package cn.zl.zxrpc.rpccommon.tmpspi;
 import cn.zl.zxrpc.rpccommon.annotation.*;
 import cn.zl.zxrpc.rpccommon.execption.FileNotFoundException;
 import cn.zl.zxrpc.rpccommon.message.HttpMethodType;
-import com.apple.eawt.AppEvent;
 
 /**
  * @Author: zl

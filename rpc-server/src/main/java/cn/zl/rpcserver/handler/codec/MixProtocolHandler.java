@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -158,12 +159,16 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         //exception handler
         System.out.println(this.messageType == MessageType.ZXRPC);
-        System.out.println(cause.getCause().getClass());
+
         Map<Class<? extends Exception>, ExceptionHandlerAdapter> classExceptionHandlerAdapterMap
                 = this.exceptionHandlers.get(this.messageType);
 
+        if (cause.getClass() == IOException.class) {
+            ctx.close();
+            return;
+        }
         Exception exception = (Exception) cause.getCause();
-        System.out.println(exception);
+
         if (classExceptionHandlerAdapterMap != null) {
             ExceptionHandlerAdapter<RpcResponse> exceptionHandlerAdapter = classExceptionHandlerAdapterMap.get(cause.getCause().getClass());
             if (exceptionHandlerAdapter != null) {
