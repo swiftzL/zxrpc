@@ -116,7 +116,9 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
 //            });
 
             ByteBuf resultByteBuf = getByteBuf(messageType, rpcResponse);
-            ctx.write(resultByteBuf);
+            if (ctx.channel().isWritable()) {
+                ctx.write(resultByteBuf);
+            }
         } else if (msg.getMessageType() == MessageType.HTTP) {
 
             this.httpProtocolHandler.handleHttp(ctx, byteBuf);
@@ -126,9 +128,8 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("flush");
         ctx.flush();
-        if (messageType == MessageType.HTTP) {
+        if (messageType == MessageType.HTTP || !ctx.channel().isWritable()) {
             ctx.close();//not support keepalive
         }
 
@@ -140,8 +141,8 @@ public class MixProtocolHandler extends MessageToMessageDecoder<MessageDescribe>
             ByteBuf byteBuf = HttpUtils.generateHttpResponse(s);
             return byteBuf;
         } else if (messageType == MessageType.ZXRPC) {
-            ((RpcResponse)o).setRequestId(this.currentRequestId);
-            System.out.println("id is "+this.currentRequestId);
+            ((RpcResponse) o).setRequestId(this.currentRequestId);
+            System.out.println("id is " + this.currentRequestId);
             byte[] encode = this.rpcResponseSerializer.encode(o);
             int length = encode.length;
             ByteBuf buffer = Unpooled.buffer();

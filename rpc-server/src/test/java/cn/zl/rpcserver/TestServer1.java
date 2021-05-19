@@ -47,8 +47,8 @@ public class TestServer1 {
 
 
         System.out.println("-------");
-        RpcResponse decode2 = defaultResponseSerializer.decode(b);
-        System.out.println(decode2);
+//        RpcResponse decode2 = defaultResponseSerializer.decode(b);
+//        System.out.println(decode2);
 
 
         Server server = ServerBuilder.forPort(8080).addSerializerRequest(SerializerHelper::getDefaultRequestSerializer)
